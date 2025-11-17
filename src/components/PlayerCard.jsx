@@ -9,7 +9,6 @@ export default function PlayerCard({
   isPlaying,
   togglePlay,
   filtersApplied,
-  isLastRound,
   revealedAnswer,
   waveformProgress,
   activeFilters,
@@ -37,8 +36,8 @@ export default function PlayerCard({
             <div className="text-sm text-gray-700">
               <div className="font-semibold">Filtered Clip</div>
               <div className="text-xs text-gray-500">
-                {isLastRound
-                  ? "No filters - Final round!"
+                {filtersApplied === 0
+                  ? "No filters"
                   : `Filters applied: ${filtersApplied}/6`}
                 {revealedAnswer && " • Game Over"}
               </div>

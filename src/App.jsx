@@ -5,8 +5,8 @@ import GuessInput from "./components/GuessInput";
 import GuessHistory from "./components/GuessHistory";
 import RevealedAnswer from "./components/RevealedAnswer";
 
-const TOTAL_ROUNDS = 6;
-const FILTER_LEVELS = [6, 5, 4, 3, 2, 0];
+const TOTAL_ROUNDS = 7;
+const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
   { name: "Low Cut", description: "Removes low frequencies" },
   { name: "High Cut", description: "Removes high frequencies" },
@@ -33,16 +33,28 @@ const SONGS = [
     url: "/songs/Rock_With_You.mp3",
   },
   { title: "Gravity", artist: "Brent Faiyaz", url: "/songs/Gravity.mp3" },
-  { title: "Flashing Lights", artist: "Kanye West", url: "/songs/Flashing_Lights.mp3" },
+  {
+    title: "Flashing Lights",
+    artist: "Kanye West",
+    url: "/songs/Flashing_Lights.mp3",
+  },
   { title: "I Wonder", artist: "Kanye West", url: "/songs/I_Wonder.mp3" },
-  { title: "Money Trees", artist: "Kendrick Lamar", url: "/songs/Money_Trees.mp3" },
+  {
+    title: "Money Trees",
+    artist: "Kendrick Lamar",
+    url: "/songs/Money_Trees.mp3",
+  },
   {
     title: "No Role Modelz",
     artist: "J Cole",
     url: "/songs/No_Role_Modelz.mp3",
   },
   { title: "Passionfruit", artist: "Drake", url: "/songs/Passionfruit.mp3" },
-  { title: "Is There Someone Else?", artist: "The Weeknd", url: "/songs/Is_There_Someone_Else.mp3" },
+  {
+    title: "Is There Someone Else?",
+    artist: "The Weeknd",
+    url: "/songs/Is_There_Someone_Else.mp3",
+  },
   {
     title: "See You Again",
     artist: "Tyler The Creator",
@@ -81,27 +93,40 @@ export default function App() {
     if (!songData) {
       const track = SONGS[Math.floor(Math.random() * SONGS.length)];
       setSongData(track);
+      return;
     }
 
-    audioCtxRef.current = new (window.AudioContext ||
-      window.webkitAudioContext)();
-    const audioEl = new Audio(songData?.url);
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioCtxRef.current = audioCtx;
+
+    const audioEl = new Audio(songData.url);
     audioEl.crossOrigin = "anonymous";
     audioRef.current = audioEl;
 
-    sourceRef.current = audioCtxRef.current.createMediaElementSource(audioEl);
-    const filters = createFilters(audioCtxRef.current, filtersApplied);
+    const sourceNode = audioCtx.createMediaElementSource(audioEl);
+    sourceRef.current = sourceNode;
+
+    const currentFilterLevel = FILTER_LEVELS[round];
+    const filters = createFilters(audioCtx, currentFilterLevel);
     filterNodesRef.current = filters;
 
-    let nodeChain = sourceRef.current;
-    filters.forEach((f) => {
-      nodeChain.connect(f);
-      nodeChain = f;
+    let node = sourceNode;
+    filters.forEach((filter) => {
+      node.connect(filter);
+      node = filter;
     });
-    nodeChain.connect(audioCtxRef.current.destination);
+
+    node.connect(audioCtx.destination);
 
     setPlayerReady(true);
-  }, [songData]);
+
+    return () => {
+      try {
+        sourceNode.disconnect();
+        filters.forEach((f) => f.disconnect());
+      } catch (_) {}
+    };
+  }, [songData, round]);
 
   useEffect(() => {
     if (!audioCtxRef.current || !sourceRef.current) return;
@@ -128,35 +153,12 @@ export default function App() {
   function createFilters(ctx, level) {
     const filters = [];
     if (level >= 1) {
-      const lowpass = ctx.createBiquadFilter();
-      lowpass.type = "lowpass";
-      lowpass.frequency.value = 1500 - level * 150;
-      filters.push(lowpass);
     }
     if (level >= 2) {
-      const highpass = ctx.createBiquadFilter();
-      highpass.type = "highpass";
-      highpass.frequency.value = 300 + level * 100;
-      filters.push(highpass);
     }
     if (level >= 3) {
-      const distortion = ctx.createWaveShaper();
-      distortion.curve = makeDistortionCurve(level * 10);
-      filters.push(distortion);
     }
     return filters;
-  }
-
-  function makeDistortionCurve(amount) {
-    const n_samples = 44100;
-    const curve = new Float32Array(n_samples);
-    const deg = Math.PI / 180;
-    for (let i = 0; i < n_samples; ++i) {
-      const x = (i * 2) / n_samples - 1;
-      curve[i] =
-        ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
-    }
-    return curve;
   }
 
   function togglePlay() {
@@ -172,19 +174,28 @@ export default function App() {
 
   function submitGuess() {
     if (!guessText.trim() || !canGuess) return;
-    const guess = guessText.trim();
+    const guess = guessText.toLowerCase().replace(/\s+/g, "");
     const isCorrect =
       songData &&
-      [songData.title, songData.artist].some((t) =>
+      [
+        songData.title.toLowerCase().replace(/\s+/g, ""),
+      ].some((t) => t.toLowerCase().includes(guess.toLowerCase()));
+
+    const isPartialCorrect =
+      songData &&
+      [songData.artist.toLowerCase().replace(/\s+/g, "")].some((t) =>
         t.toLowerCase().includes(guess.toLowerCase())
       );
-
+    
     setGuesses((g) => [
       {
-        text: guess,
+        songTitle: songData.title,
+        songArtist: songData.artist,
+        text: guessText,
         round: round + 1,
         filters: filtersApplied,
         correct: isCorrect,
+        partialCorrect: isPartialCorrect,
       },
       ...g,
     ]);
@@ -198,6 +209,7 @@ export default function App() {
 
   function skipRound() {
     if (round < TOTAL_ROUNDS - 1 && !revealedAnswer) setRound((r) => r + 1);
+    setIsPlaying(false);
   }
 
   return (
@@ -210,7 +222,6 @@ export default function App() {
             isPlaying={isPlaying}
             togglePlay={togglePlay}
             filtersApplied={filtersApplied}
-            isLastRound={isLastRound}
             revealedAnswer={revealedAnswer}
             waveformProgress={waveformProgress}
             activeFilters={activeFilters}

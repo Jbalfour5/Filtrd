@@ -1,7 +1,7 @@
-import React from 'react';
-import IconFilter from './icons/IconFilter';
+import React from "react";
+import IconFilter from "./icons/IconFilter";
 
-const FILTER_LEVELS = [6, 5, 4, 3, 2, 0];
+const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 
 export default function ActiveFilters({ filters, currentRound }) {
   const filtersToShow = filters.slice(0, FILTER_LEVELS[currentRound]);
@@ -13,7 +13,7 @@ export default function ActiveFilters({ filters, currentRound }) {
         <IconFilter />
         <span>Active Filters ({filtersToShow.length})</span>
       </div>
-      
+
       {filtersToShow.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {filtersToShow.map((filter, index) => (
@@ -29,7 +29,9 @@ export default function ActiveFilters({ filters, currentRound }) {
       ) : (
         <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
           <div className="font-medium">🎉 No filters applied!</div>
-          <div className="text-xs mt-1">The audio is completely clear. Final chance to guess!</div>
+          <div className="text-xs mt-1">
+            The audio is completely clear. Final chance to guess!
+          </div>
         </div>
       )}
 
@@ -42,8 +44,12 @@ export default function ActiveFilters({ filters, currentRound }) {
                 key={index}
                 className="p-2 bg-green-50 border border-green-200 rounded-md text-xs opacity-60"
               >
-                <div className="font-medium text-green-700 line-through">{filter.name}</div>
-                <div className="text-green-600 text-xs">{filter.description}</div>
+                <div className="font-medium text-green-700 line-through">
+                  {filter.name}
+                </div>
+                <div className="text-green-600 text-xs">
+                  {filter.description}
+                </div>
               </div>
             ))}
           </div>
