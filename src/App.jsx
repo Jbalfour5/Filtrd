@@ -20,10 +20,18 @@ const SONGS = [
   { title: "Pink+White", artist: "Frank Ocean", url: "/songs/Pink+White.mp3" },
   { title: "Best Part", artist: "Daniel Caesar", url: "/songs/Best_Part.mp3" },
   { title: "Snooze", artist: "SZA", url: "/songs/Snooze.mp3" },
-  { title: "Chamber Of Reflection", artist: "Mac DeMarco", url: "/songs/Chamber_Of_Reflection.mp3" },
+  {
+    title: "Chamber Of Reflection",
+    artist: "Mac DeMarco",
+    url: "/songs/Chamber_Of_Reflection.mp3",
+  },
   { title: "Bad Habit", artist: "Steve Lacy", url: "/songs/Bad_Habit.mp3" },
   { title: "Earfquake", artist: "Tyler The Creator", url: "/songs/Ivy.mp3" },
-  { title: "Rock With You", artist: "Michael Jackson", url: "/songs/Rock_With_You.mp3" },
+  {
+    title: "Rock With You",
+    artist: "Michael Jackson",
+    url: "/songs/Rock_With_You.mp3",
+  },
   { title: "20 Min", artist: "Lil Uzi Vert", url: "/songs/20_Min.mp3" },
 ];
 
@@ -54,13 +62,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const track = SONGS[Math.floor(Math.random() * SONGS.length)];
-    setSongData(track);
-    setPlayerReady(false);
+    if (!songData) {
+      const track = SONGS[Math.floor(Math.random() * SONGS.length)];
+      setSongData(track);
+    }
 
     audioCtxRef.current = new (window.AudioContext ||
       window.webkitAudioContext)();
-    const audioEl = new Audio(track.url);
+    const audioEl = new Audio(songData?.url);
     audioEl.crossOrigin = "anonymous";
     audioRef.current = audioEl;
 
@@ -76,6 +85,28 @@ export default function App() {
     nodeChain.connect(audioCtxRef.current.destination);
 
     setPlayerReady(true);
+  }, [songData]);
+
+  useEffect(() => {
+    if (!audioCtxRef.current || !sourceRef.current) return;
+
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+
+    filterNodesRef.current.forEach((f) => f.disconnect());
+    filterNodesRef.current = [];
+
+    const filters = createFilters(audioCtxRef.current, filtersApplied);
+    filterNodesRef.current = filters;
+
+    let nodeChain = sourceRef.current;
+    filters.forEach((f) => {
+      nodeChain.connect(f);
+      nodeChain = f;
+    });
+    nodeChain.connect(audioCtxRef.current.destination);
   }, [round]);
 
   function createFilters(ctx, level) {
