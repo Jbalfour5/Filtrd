@@ -32,7 +32,23 @@ const SONGS = [
     artist: "Michael Jackson",
     url: "/songs/Rock_With_You.mp3",
   },
-  { title: "20 Min", artist: "Lil Uzi Vert", url: "/songs/20_Min.mp3" },
+  { title: "Gravity", artist: "Brent Faiyaz", url: "/songs/Gravity.mp3" },
+  { title: "Flashing Lights", artist: "Kanye West", url: "/songs/Flashing_Lights.mp3" },
+  { title: "I Wonder", artist: "Kanye West", url: "/songs/I_Wonder.mp3" },
+  { title: "Money Trees", artist: "Kendrick Lamar", url: "/songs/Money_Trees.mp3" },
+  {
+    title: "No Role Modelz",
+    artist: "J Cole",
+    url: "/songs/No_Role_Modelz.mp3",
+  },
+  { title: "Passionfruit", artist: "Drake", url: "/songs/Passionfruit.mp3" },
+  { title: "Is There Someone Else?", artist: "The Weeknd", url: "/songs/Is_There_Someone_Else.mp3" },
+  {
+    title: "See You Again",
+    artist: "Tyler The Creator",
+    url: "/songs/See_You_Again.mp3",
+  },
+  { title: "The Thrill", artist: "Wiz Khalifa", url: "/songs/The_Thrill.mp3" },
 ];
 
 export default function App() {
