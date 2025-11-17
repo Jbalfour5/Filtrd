@@ -34,8 +34,10 @@ export default function PlayerCard({
             <div className="text-sm text-gray-700">
               <div className="font-semibold">Filtered Clip</div>
               <div className="text-xs text-gray-500">
-                {isLastRound ? 'No filters - Final round!' : `Filters applied: ${filtersApplied}/6`}
-                {revealedAnswer && ' • Game Over'}
+                {isLastRound
+                  ? "No filters - Final round!"
+                  : `Filters applied: ${filtersApplied}/6`}
+                {revealedAnswer && " • Game Over"}
               </div>
             </div>
           </div>
@@ -54,7 +56,7 @@ export default function PlayerCard({
         </div>
       </div>
 
-      <audio ref={audioRef} src="/audio/song.mp3" preload="auto" />
+      <audio ref={audioRef} preload="auto" />
     </div>
   );
 }
