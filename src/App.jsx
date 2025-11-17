@@ -17,9 +17,14 @@ const ALL_FILTERS = [
 ];
 
 const SONGS = [
-  { title: "Song A", artist: "Artist 1", url: "/songs/Pink+White.mp3" },
-  { title: "Song B", artist: "Artist 2", url: "/songs/Best_Part.mp3" },
-  { title: "Song C", artist: "Artist 3", url: "/songs/beside_you.mp3" },
+  { title: "Pink+White", artist: "Frank Ocean", url: "/songs/Pink+White.mp3" },
+  { title: "Best Part", artist: "Daniel Caesar", url: "/songs/Best_Part.mp3" },
+  { title: "Snooze", artist: "SZA", url: "/songs/Snooze.mp3" },
+  { title: "Chamber Of Reflection", artist: "Mac DeMarco", url: "/songs/Chamber_Of_Reflection.mp3" },
+  { title: "Bad Habit", artist: "Steve Lacy", url: "/songs/Bad_Habit.mp3" },
+  { title: "Earfquake", artist: "Tyler The Creator", url: "/songs/Ivy.mp3" },
+  { title: "Rock With You", artist: "Michael Jackson", url: "/songs/Rock_With_You.mp3" },
+  { title: "20 Min", artist: "Lil Uzi Vert", url: "/songs/20_Min.mp3" },
 ];
 
 export default function App() {
