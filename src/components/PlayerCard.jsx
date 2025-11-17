@@ -14,7 +14,6 @@ export default function PlayerCard({
   waveformProgress,
   activeFilters,
   playerReady,
-  songData,
 }) {
   return (
     <div className="rounded-xl border border-gray-300 p-4 bg-gray-50">
@@ -27,9 +26,9 @@ export default function PlayerCard({
           <div className="flex items-center gap-3">
             <button
               onClick={togglePlay}
-              disabled={!playerReady || !songData}
+              disabled={!playerReady}
               className={`p-2 rounded-md bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm ${
-                !playerReady || !songData ? "opacity-50 cursor-not-allowed" : ""
+                !playerReady ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               {isPlaying ? <IconPause /> : <IconPlay />}

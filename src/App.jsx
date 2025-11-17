@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
 import PlayerCard from "./components/PlayerCard";
 import GuessInput from "./components/GuessInput";
 import GuessHistory from "./components/GuessHistory";
 import RevealedAnswer from "./components/RevealedAnswer";
-import { redirectToAuthCodeFlow } from "./backend/spotifyAuth";
 
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-const PLAYLIST_ID = "37i9dQZF1DX0XUsuxWHRQd";
 const TOTAL_ROUNDS = 6;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 0];
 const ALL_FILTERS = [
@@ -17,10 +14,12 @@ const ALL_FILTERS = [
   { name: "Reverb", description: "Adds echo effect" },
   { name: "Distortion", description: "Adds gritty distortion" },
   { name: "Band Pass", description: "Narrows frequency range" },
-  { name: "Phaser", description: "Creates sweeping effect" },
-  { name: "Flanger", description: "Adds jet-like sound" },
-  { name: "Chorus", description: "Thickens the sound" },
-  { name: "EQ Cut", description: "Reduces specific frequencies" },
+];
+
+const SONGS = [
+  { title: "Song A", artist: "Artist 1", url: "/songs/Pink+White.mp3" },
+  { title: "Song B", artist: "Artist 2", url: "/songs/Best_Part.mp3" },
+  { title: "Song C", artist: "Artist 3", url: "/songs/beside_you.mp3" },
 ];
 
 export default function App() {
@@ -31,8 +30,12 @@ export default function App() {
   const [revealedAnswer, setRevealedAnswer] = useState(null);
   const [activeFilters, setActiveFilters] = useState([]);
   const [songData, setSongData] = useState(null);
-  const [player, setPlayer] = useState(null);
-  const [deviceId, setDeviceId] = useState(null);
+  const [playerReady, setPlayerReady] = useState(false);
+
+  const audioRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const sourceRef = useRef(null);
+  const filterNodesRef = useRef([]);
 
   const filtersApplied = FILTER_LEVELS[round];
   const maxFilters = FILTER_LEVELS[0];
@@ -46,75 +49,73 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("spotify_access_token");
+    const track = SONGS[Math.floor(Math.random() * SONGS.length)];
+    setSongData(track);
+    setPlayerReady(false);
 
-    if (!token && window.location.pathname !== "/auth/callback") {
-      redirectToAuthCodeFlow(CLIENT_ID);
-      return;
+    audioCtxRef.current = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    const audioEl = new Audio(track.url);
+    audioEl.crossOrigin = "anonymous";
+    audioRef.current = audioEl;
+
+    sourceRef.current = audioCtxRef.current.createMediaElementSource(audioEl);
+    const filters = createFilters(audioCtxRef.current, filtersApplied);
+    filterNodesRef.current = filters;
+
+    let nodeChain = sourceRef.current;
+    filters.forEach((f) => {
+      nodeChain.connect(f);
+      nodeChain = f;
+    });
+    nodeChain.connect(audioCtxRef.current.destination);
+
+    setPlayerReady(true);
+  }, [round]);
+
+  function createFilters(ctx, level) {
+    const filters = [];
+    if (level >= 1) {
+      const lowpass = ctx.createBiquadFilter();
+      lowpass.type = "lowpass";
+      lowpass.frequency.value = 1500 - level * 150;
+      filters.push(lowpass);
     }
-    if (!token) return;
-
-    const script = document.createElement("script");
-    script.src = "https://sdk.scdn.co/spotify-player.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const spotifyPlayer = new window.Spotify.Player({
-        name: "Filtrd Game Player",
-        getOAuthToken: (cb) => cb(token),
-        volume: 0.5,
-      });
-
-      spotifyPlayer.addListener("ready", ({ device_id }) => {
-        console.log("Spotify ready with device:", device_id);
-        setPlayer(spotifyPlayer);
-        setDeviceId(device_id);
-      });
-
-      spotifyPlayer.connect();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!deviceId) return;
-
-    async function fetchTrack() {
-      const token = localStorage.getItem("spotify_access_token");
-      const res = await fetch(
-        `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks?limit=50`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const data = await res.json();
-      const tracks = data.items
-        .map((item) => item.track)
-        .filter((track) => track && track.is_playable);
-      if (!tracks.length) return console.error("No playable tracks");
-
-      const track = tracks[Math.floor(Math.random() * tracks.length)];
-
-      setSongData({
-        title: track.name,
-        artist: track.artists.map((a) => a.name).join(", "),
-        uri: track.uri,
-      });
-
-      await fetch(
-        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ uris: [track.uri] }),
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    if (level >= 2) {
+      const highpass = ctx.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.value = 300 + level * 100;
+      filters.push(highpass);
     }
+    if (level >= 3) {
+      const distortion = ctx.createWaveShaper();
+      distortion.curve = makeDistortionCurve(level * 10);
+      filters.push(distortion);
+    }
+    return filters;
+  }
 
-    fetchTrack();
-  }, [deviceId]);
+  function makeDistortionCurve(amount) {
+    const n_samples = 44100;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n_samples; ++i) {
+      const x = (i * 2) / n_samples - 1;
+      curve[i] =
+        ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+    }
+    return curve;
+  }
 
   function togglePlay() {
-    if (!player) return;
-    player.togglePlay().then(() => setIsPlaying((p) => !p));
+    if (!audioRef.current) return;
+    if (!isPlaying) {
+      audioCtxRef.current.resume();
+      audioRef.current.play();
+    } else {
+      audioRef.current.pause();
+    }
+    setIsPlaying(!isPlaying);
   }
 
   function submitGuess() {
@@ -138,13 +139,9 @@ export default function App() {
 
     setGuessText("");
 
-    if (isCorrect) {
-      setRevealedAnswer(songData);
-    } else if (round < TOTAL_ROUNDS - 1) {
-      setRound((r) => r + 1);
-    } else {
-      setRevealedAnswer(songData);
-    }
+    if (isCorrect) setRevealedAnswer(songData);
+    else if (round < TOTAL_ROUNDS - 1) setRound((r) => r + 1);
+    else setRevealedAnswer(songData);
   }
 
   function skipRound() {
@@ -165,10 +162,8 @@ export default function App() {
             revealedAnswer={revealedAnswer}
             waveformProgress={waveformProgress}
             activeFilters={activeFilters}
-            playerReady={!!player && !!deviceId}
-            songData={songData}
+            playerReady={playerReady}
           />
-
           {!revealedAnswer && (
             <GuessInput
               guessText={guessText}
@@ -181,11 +176,9 @@ export default function App() {
               revealedAnswer={revealedAnswer}
             />
           )}
-
           {revealedAnswer && (
             <RevealedAnswer revealedAnswer={songData} guesses={guesses} />
           )}
-
           <GuessHistory guesses={guesses} />
         </main>
       </div>
