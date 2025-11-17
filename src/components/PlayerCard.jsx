@@ -1,8 +1,8 @@
-import React from 'react';
-import IconPlay from './icons/IconPlay';
-import IconPause from './icons/IconPause';
-import TinyWaveform from './TinyWaveform';
-import ActiveFilters from './ActiveFilters';
+import React from "react";
+import IconPlay from "./icons/IconPlay";
+import IconPause from "./icons/IconPause";
+import TinyWaveform from "./TinyWaveform";
+import ActiveFilters from "./ActiveFilters";
 
 export default function PlayerCard({
   round,
@@ -13,7 +13,8 @@ export default function PlayerCard({
   revealedAnswer,
   waveformProgress,
   activeFilters,
-  audioRef
+  playerReady,
+  songData,
 }) {
   return (
     <div className="rounded-xl border border-gray-300 p-4 bg-gray-50">
@@ -26,7 +27,10 @@ export default function PlayerCard({
           <div className="flex items-center gap-3">
             <button
               onClick={togglePlay}
-              className="p-2 rounded-md bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm"
+              disabled={!playerReady || !songData}
+              className={`p-2 rounded-md bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm ${
+                !playerReady || !songData ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               {isPlaying ? <IconPause /> : <IconPlay />}
             </button>
@@ -55,8 +59,6 @@ export default function PlayerCard({
           )}
         </div>
       </div>
-
-      <audio ref={audioRef} preload="auto" />
     </div>
   );
 }
