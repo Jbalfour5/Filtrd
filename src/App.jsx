@@ -39,7 +39,6 @@ const SONGS = [
     artist: "Demi Lovato",
     url: "/songs/02 - Demi Lovato - Heart Attack (Official Video).mp3",
   },
-  { title: "God's Plan", artist: "Drake", url: "/songs/002 - God's Plan.mp3" },
   { title: "Physical", artist: "Dua Lipa", url: "/songs/02 - Physical.mp3" },
   {
     title: "All The Stars",
