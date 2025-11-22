@@ -85,8 +85,7 @@ export default function App() {
   const canGuess = !revealedAnswer;
 
   useEffect(() => {
-    const shuffled = [...ALL_FILTERS].sort(() => 0.5 - Math.random());
-    setActiveFilters(shuffled.slice(0, 6));
+    setActiveFilters(ALL_FILTERS.slice(0, 6));
   }, []);
 
   useEffect(() => {
