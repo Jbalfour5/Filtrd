@@ -102,11 +102,11 @@ export default function App() {
   async function createFilters(ctx, level) {
     const filters = [];
     if (level >= 1) {
-      const highCut = await createHighCutNode(ctx, 1400);
+      const highCut = await createHighCutNode(ctx, 10000);
       filters.push(highCut);
     }
     if (level >= 2) {
-      const lowCut = await createLowCutNode(ctx, 600);
+      const lowCut = await createLowCutNode(ctx, 2000);
       filters.push(lowCut);
     }
     if (level >= 3) {
@@ -351,6 +351,7 @@ export default function App() {
               TOTAL_ROUNDS={TOTAL_ROUNDS}
               revealedAnswer={revealedAnswer}
               nextFilterName={nextFilterName}
+              SONGS={SONGS}
             />
           )}
           {revealedAnswer && (

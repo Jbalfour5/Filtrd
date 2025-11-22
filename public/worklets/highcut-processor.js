@@ -1,5 +1,5 @@
 class HighCutFIR {
-  constructor(sampleRate, cutoffHz = 8000, length = 101) {
+  constructor(sampleRate, cutoffHz = 3000, length = 101) {
     if (length % 2 === 0) length += 1;
 
     this.fs = sampleRate;
