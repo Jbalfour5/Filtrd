@@ -181,11 +181,6 @@ const SONGS = [
     url: "/songs/19 - Anti-Hero.mp3",
   },
   {
-    title: "Flashing Lights",
-    artist: "Kanye West",
-    url: "/songs/020 - Flashing Lights.mp3",
-  },
-  {
     title: "Unholy",
     artist: "Sam Smith ft. Kim Petras",
     url: "/songs/20 - Unholy.mp3",
