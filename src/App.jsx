@@ -5,8 +5,8 @@ import GuessInput from "./components/GuessInput";
 import GuessHistory from "./components/GuessHistory";
 import RevealedAnswer from "./components/RevealedAnswer";
 
-const TOTAL_ROUNDS = 7;
-const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
+const TOTAL_ROUNDS = 6;
+const FILTER_LEVELS = [5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
   { name: "Reverb", description: "Adds echo effect" },
   { name: "Bit Crusher", description: "Reduces audio quality" },
@@ -159,8 +159,6 @@ export default function App() {
     if (level >= 4) {
     }
     if (level >= 5) {
-    }
-    if (level >= 6) {
     }
     return filters;
   }
