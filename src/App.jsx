@@ -158,6 +158,12 @@ export default function App() {
     }
     if (level >= 3) {
     }
+    if (level >= 4) {
+    }
+    if (level >= 5) {
+    }
+    if (level >= 6) {
+    }
     return filters;
   }
 
@@ -177,16 +183,16 @@ export default function App() {
     const guess = guessText.toLowerCase().replace(/\s+/g, "");
     const isCorrect =
       songData &&
-      [
-        songData.title.toLowerCase().replace(/\s+/g, ""),
-      ].some((t) => t.toLowerCase().includes(guess.toLowerCase()));
+      [songData.title.toLowerCase().replace(/\s+/g, "")].some((t) =>
+        t.toLowerCase().includes(guess.toLowerCase())
+      );
 
     const isPartialCorrect =
       songData &&
       [songData.artist.toLowerCase().replace(/\s+/g, "")].some((t) =>
         t.toLowerCase().includes(guess.toLowerCase())
       );
-    
+
     setGuesses((g) => [
       {
         songTitle: songData.title,
