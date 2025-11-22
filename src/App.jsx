@@ -84,6 +84,10 @@ export default function App() {
   const isLastRound = round === TOTAL_ROUNDS - 1;
   const canGuess = !revealedAnswer;
 
+  const nextFilterName =
+    round < TOTAL_ROUNDS - 1 ? ALL_FILTERS[FILTER_LEVELS[round + 1]]?.name : "";
+
+
   useEffect(() => {
     setActiveFilters(ALL_FILTERS.slice(0, 6));
   }, []);
@@ -248,6 +252,7 @@ export default function App() {
               round={round}
               TOTAL_ROUNDS={TOTAL_ROUNDS}
               revealedAnswer={revealedAnswer}
+              nextFilterName={nextFilterName}
             />
           )}
           {revealedAnswer && (
