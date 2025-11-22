@@ -8,12 +8,11 @@ import RevealedAnswer from "./components/RevealedAnswer";
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
+  { name: "Reverb", description: "Adds echo effect" },
+  { name: "Bit Crusher", description: "Reduces audio quality" },
+  { name: "Distortion", description: "Adds gritty distortion" },
   { name: "Low Cut", description: "Removes low frequencies" },
   { name: "High Cut", description: "Removes high frequencies" },
-  { name: "Bit Crusher", description: "Reduces audio quality" },
-  { name: "Reverb", description: "Adds echo effect" },
-  { name: "Distortion", description: "Adds gritty distortion" },
-  { name: "Band Pass", description: "Narrows frequency range" },
 ];
 
 const SONGS = [
