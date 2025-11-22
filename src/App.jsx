@@ -4,6 +4,7 @@ import PlayerCard from "./components/PlayerCard";
 import GuessInput from "./components/GuessInput";
 import GuessHistory from "./components/GuessHistory";
 import RevealedAnswer from "./components/RevealedAnswer";
+import { createHighCutNode } from "./filters/highcutnode";
 
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
@@ -89,83 +90,81 @@ export default function App() {
     setActiveFilters(shuffled.slice(0, 6));
   }, []);
 
+  async function createFilters(ctx, level) {
+    const filters = [];
+    if (level >= 1) {
+      const highCut = await createHighCutNode(ctx, 80);
+      filters.push(highCut);
+    }
+    return filters;
+  }
+
   useEffect(() => {
-    if (!songData) {
-      const track = SONGS[Math.floor(Math.random() * SONGS.length)];
-      setSongData(track);
-      return;
+    async function setup() {
+      if (!songData) {
+        const track = SONGS[Math.floor(Math.random() * SONGS.length)];
+        setSongData(track);
+        return;
+      }
+
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtxRef.current = audioCtx;
+
+      const audioEl = new Audio(songData.url);
+      audioEl.crossOrigin = "anonymous";
+      audioRef.current = audioEl;
+
+      const sourceNode = audioCtx.createMediaElementSource(audioEl);
+      sourceRef.current = sourceNode;
+
+      const filters = await createFilters(audioCtx, FILTER_LEVELS[round]);
+      filterNodesRef.current = filters;
+
+      let node = sourceNode;
+      filters.forEach((f) => {
+        node.connect(f);
+        node = f;
+      });
+
+      node.connect(audioCtx.destination);
+      setPlayerReady(true);
     }
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    audioCtxRef.current = audioCtx;
-
-    const audioEl = new Audio(songData.url);
-    audioEl.crossOrigin = "anonymous";
-    audioRef.current = audioEl;
-
-    const sourceNode = audioCtx.createMediaElementSource(audioEl);
-    sourceRef.current = sourceNode;
-
-    const currentFilterLevel = FILTER_LEVELS[round];
-    const filters = createFilters(audioCtx, currentFilterLevel);
-    filterNodesRef.current = filters;
-
-    let node = sourceNode;
-    filters.forEach((filter) => {
-      node.connect(filter);
-      node = filter;
-    });
-
-    node.connect(audioCtx.destination);
-
-    setPlayerReady(true);
+    setup();
 
     return () => {
       try {
-        sourceNode.disconnect();
-        filters.forEach((f) => f.disconnect());
-      } catch (_) {}
+        sourceRef.current?.disconnect();
+        filterNodesRef.current.forEach((f) => f.disconnect());
+      } catch {}
     };
   }, [songData, round]);
 
   useEffect(() => {
-    if (!audioCtxRef.current || !sourceRef.current) return;
+    async function updateFilters() {
+      if (!audioCtxRef.current || !sourceRef.current) return;
 
-    if (audioRef.current && !audioRef.current.paused) {
-      audioRef.current.pause();
-      setIsPlaying(false);
+      if (audioRef.current && !audioRef.current.paused) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+
+      filterNodesRef.current.forEach((f) => f.disconnect());
+      filterNodesRef.current = [];
+
+      const filters = await createFilters(audioCtxRef.current, filtersApplied);
+      filterNodesRef.current = filters;
+
+      let nodeChain = sourceRef.current;
+      filters.forEach((f) => {
+        nodeChain.connect(f);
+        nodeChain = f;
+      });
+      nodeChain.connect(audioCtxRef.current.destination);
     }
 
-    filterNodesRef.current.forEach((f) => f.disconnect());
-    filterNodesRef.current = [];
-
-    const filters = createFilters(audioCtxRef.current, filtersApplied);
-    filterNodesRef.current = filters;
-
-    let nodeChain = sourceRef.current;
-    filters.forEach((f) => {
-      nodeChain.connect(f);
-      nodeChain = f;
-    });
-    nodeChain.connect(audioCtxRef.current.destination);
+    updateFilters();
   }, [round]);
-
-  function createFilters(ctx, level) {
-    const filters = [];
-    if (level >= 1) {
-    }
-    if (level >= 2) {
-    }
-    if (level >= 3) {
-    }
-    if (level >= 4) {
-    }
-    if (level >= 5) {
-    }
-    if (level >= 6) {
-    }
-    return filters;
-  }
 
   function togglePlay() {
     if (!audioRef.current) return;
