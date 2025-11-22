@@ -123,19 +123,9 @@ const SONGS = [
     url: "/songs/11 - Heartbreak Anthem.mp3",
   },
   {
-    title: "What Do You Mean?",
-    artist: "Justin Bieber",
-    url: "/songs/011 - What Do You Mean?.mp3",
-  },
-  {
     title: "BED",
     artist: "Joel Corry, RAYE & David Guetta",
     url: "/songs/12 - BED.mp3",
-  },
-  {
-    title: "Sorry",
-    artist: "Justin Bieber",
-    url: "/songs/012 - Justin Bieber - Sorry (PURPOSE :  The Movement).mp3",
   },
   {
     title: "STAY",
@@ -439,11 +429,6 @@ const SONGS = [
     url: "/songs/047 - Beauty And A Beat.mp3",
   },
   {
-    title: "That's So True",
-    artist: "Gracie Abrams",
-    url: "/songs/47 - That's So True.mp3",
-  },
-  {
     title: "Sunroof",
     artist: "Nicky Youre & dazy",
     url: "/songs/048 - Nicky Youre, dazy - Sunroof (Lyrics).mp3",
@@ -710,7 +695,7 @@ const SONGS = [
   {
     title: "Stressed Out",
     artist: "Twenty One Pilots",
-    url: "/songs/twenty one pilots:  Stressed Out [OFFICIAL VIDEO].mp3",
+    url: "/songs/twenty one pilotsStressed Out.mp3",
   },
 ];
 
