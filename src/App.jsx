@@ -5,6 +5,7 @@ import GuessInput from "./components/GuessInput";
 import GuessHistory from "./components/GuessHistory";
 import RevealedAnswer from "./components/RevealedAnswer";
 import { createHighCutNode } from "./filters/highcutnode";
+import { createLowCutNode } from "./filters/lowcutnode";
 
 const TOTAL_ROUNDS = 6;
 const FILTER_LEVELS = [5, 4, 3, 2, 1, 0];
@@ -101,8 +102,18 @@ export default function App() {
   async function createFilters(ctx, level) {
     const filters = [];
     if (level >= 1) {
-      const highCut = await createHighCutNode(ctx, 3000);
+      const highCut = await createHighCutNode(ctx, 1400);
       filters.push(highCut);
+    }
+    if (level >= 2) {
+      const lowCut = await createLowCutNode(ctx, 600);
+      filters.push(lowCut);
+    }
+    if (level >= 3) {
+    }
+    if (level >= 4) {
+    }
+    if (level >= 5) {
     }
     return filters;
   }
