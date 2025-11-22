@@ -21,18 +21,46 @@ const SONGS = [
   { title: "Pink+White", artist: "Frank Ocean", url: "/songs/Pink+White.mp3" },
   { title: "Best Part", artist: "Daniel Caesar", url: "/songs/Best_Part.mp3" },
   { title: "Snooze", artist: "SZA", url: "/songs/Snooze.mp3" },
-  { title: "Chamber Of Reflection", artist: "Mac DeMarco", url: "/songs/Chamber_Of_Reflection.mp3" },
+  {
+    title: "Chamber Of Reflection",
+    artist: "Mac DeMarco",
+    url: "/songs/Chamber_Of_Reflection.mp3",
+  },
   { title: "Bad Habit", artist: "Steve Lacy", url: "/songs/Bad_Habit.mp3" },
   { title: "Earfquake", artist: "Tyler The Creator", url: "/songs/Ivy.mp3" },
-  { title: "Rock With You", artist: "Michael Jackson", url: "/songs/Rock_With_You.mp3" },
+  {
+    title: "Rock With You",
+    artist: "Michael Jackson",
+    url: "/songs/Rock_With_You.mp3",
+  },
   { title: "Gravity", artist: "Brent Faiyaz", url: "/songs/Gravity.mp3" },
-  { title: "Flashing Lights", artist: "Kanye West", url: "/songs/Flashing_Lights.mp3" },
+  {
+    title: "Flashing Lights",
+    artist: "Kanye West",
+    url: "/songs/Flashing_Lights.mp3",
+  },
   { title: "I Wonder", artist: "Kanye West", url: "/songs/I_Wonder.mp3" },
-  { title: "Money Trees", artist: "Kendrick Lamar", url: "/songs/Money_Trees.mp3" },
-  { title: "No Role Modelz", artist: "J Cole", url: "/songs/No_Role_Modelz.mp3" },
+  {
+    title: "Money Trees",
+    artist: "Kendrick Lamar",
+    url: "/songs/Money_Trees.mp3",
+  },
+  {
+    title: "No Role Modelz",
+    artist: "J Cole",
+    url: "/songs/No_Role_Modelz.mp3",
+  },
   { title: "Passionfruit", artist: "Drake", url: "/songs/Passionfruit.mp3" },
-  { title: "Is There Someone Else?", artist: "The Weeknd", url: "/songs/Is_There_Someone_Else.mp3" },
-  { title: "See You Again", artist: "Tyler The Creator", url: "/songs/See_You_Again.mp3" },
+  {
+    title: "Is There Someone Else?",
+    artist: "The Weeknd",
+    url: "/songs/Is_There_Someone_Else.mp3",
+  },
+  {
+    title: "See You Again",
+    artist: "Tyler The Creator",
+    url: "/songs/See_You_Again.mp3",
+  },
   { title: "The Thrill", artist: "Wiz Khalifa", url: "/songs/The_Thrill.mp3" },
 ];
 
@@ -55,6 +83,7 @@ export default function App() {
   const audioCtxRef = useRef(null);
   const sourceRef = useRef(null);
   const intervalRef = useRef(null);
+  const filterNodesRef = useRef([]);
 
   const filtersApplied = FILTER_LEVELS[round];
   const maxFilters = FILTER_LEVELS[0];
@@ -65,7 +94,6 @@ export default function App() {
   const nextFilterName =
     round < TOTAL_ROUNDS - 1 ? ALL_FILTERS[FILTER_LEVELS[round + 1]]?.name : "";
 
-
   useEffect(() => {
     setActiveFilters(ALL_FILTERS.slice(0, 6));
   }, []);
@@ -73,19 +101,12 @@ export default function App() {
   async function createFilters(ctx, level) {
     const filters = [];
     if (level >= 1) {
-      const highCut = await createHighCutNode(ctx, 80);
+      const highCut = await createHighCutNode(ctx, 3000);
       filters.push(highCut);
-    }
-    if (level >= 2) {
-    }
-    if (level >= 3) {
-    }
-    if (level >= 4) {
-    }
-    if (level >= 5) {
     }
     return filters;
   }
+
   useEffect(() => {
     if (!songData) {
       const track = SONGS[Math.floor(Math.random() * SONGS.length)];
@@ -124,98 +145,118 @@ export default function App() {
         analyserNode.disconnect();
         audioEl.pause();
         clearInterval(intervalRef.current);
-      } catch (_) {}
+      } catch {}
     };
   }, [songData]);
 
   useEffect(() => {
-    async function setup() {
-      if (!songData) {
-        const track = SONGS[Math.floor(Math.random() * SONGS.length)];
-        setSongData(track);
-        return;
-      }
+    if (!songData) {
+      const track = SONGS[Math.floor(Math.random() * SONGS.length)];
+      setSongData(track);
+      return;
+    }
 
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioCtxRef.current = audioCtx;
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext ||
+        window.webkitAudioContext)();
+    }
 
-      const audioEl = new Audio(songData.url);
-      audioEl.crossOrigin = "anonymous";
-      audioRef.current = audioEl;
+    const audioCtx = audioCtxRef.current;
+    const audioEl = new Audio(songData.url);
+    audioEl.crossOrigin = "anonymous";
+    audioRef.current = audioEl;
 
-      const sourceNode = audioCtx.createMediaElementSource(audioEl);
-      sourceRef.current = sourceNode;
+    const sourceNode = audioCtx.createMediaElementSource(audioEl);
+    sourceRef.current = sourceNode;
 
+    const analyserNode = audioCtx.createAnalyser();
+    analyserNode.fftSize = 256;
+    setAnalyser(analyserNode);
+
+    async function connectNodes() {
       const filters = await createFilters(audioCtx, FILTER_LEVELS[round]);
       filterNodesRef.current = filters;
 
-      let node = sourceNode;
-      filters.forEach((f) => {
-        node.connect(f);
-        node = f;
-      });
-
-      node.connect(audioCtx.destination);
-      setPlayerReady(true);
-    }
-
-    setup();
-
-    return () => {
-      try {
-        sourceRef.current?.disconnect();
-        filterNodesRef.current.forEach((f) => f.disconnect());
-      } catch {}
-    };
-  }, [songData, round]);
-
-  useEffect(() => {
-    async function updateFilters() {
-      if (!audioCtxRef.current || !sourceRef.current) return;
-
-      if (audioRef.current && !audioRef.current.paused) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      }
-
-      filterNodesRef.current.forEach((f) => f.disconnect());
-      filterNodesRef.current = [];
-
-      const filters = await createFilters(audioCtxRef.current, filtersApplied);
-      filterNodesRef.current = filters;
-
-      let nodeChain = sourceRef.current;
+      let nodeChain = sourceNode;
       filters.forEach((f) => {
         nodeChain.connect(f);
         nodeChain = f;
       });
-      nodeChain.connect(audioCtxRef.current.destination);
+      nodeChain.connect(analyserNode);
+      analyserNode.connect(audioCtx.destination);
     }
 
+    connectNodes();
+
+    audioEl.addEventListener("loadedmetadata", () => {
+      if (clipStart === null) {
+        const maxStart = Math.max(0, audioEl.duration - CLIP_LENGTH);
+        setClipStart(Math.random() * maxStart);
+      }
+      setPlayerReady(true);
+    });
+
+    return () => {
+      try {
+        sourceNode.disconnect();
+        filterNodesRef.current.forEach((f) => f.disconnect());
+        analyserNode.disconnect();
+        audioEl.pause();
+        clearInterval(intervalRef.current);
+      } catch {}
+    };
+  }, [songData, round]);  
+
+  async function updateFilters() {
+    if (!audioCtxRef.current || !sourceRef.current) return;
+
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+
+    filterNodesRef.current.forEach((f) => f.disconnect());
+    filterNodesRef.current = [];
+
+    const filters = await createFilters(audioCtxRef.current, filtersApplied);
+    filterNodesRef.current = filters;
+
+    let nodeChain = sourceRef.current;
+    filters.forEach((f) => {
+      nodeChain.connect(f);
+      nodeChain = f;
+    });
+
+    if (analyser) nodeChain.connect(analyser);
+    analyser?.connect(audioCtxRef.current.destination);
+  }
+
+  useEffect(() => {
     updateFilters();
   }, [round]);
 
   function togglePlay() {
     if (!audioRef.current || !audioCtxRef.current || clipStart === null) return;
-  
+
     const audio = audioRef.current;
-  
+
     audioCtxRef.current.resume();
-  
+
     if (!isPlaying) {
       if (!audio.startedOnce || audio.currentTime >= clipStart + CLIP_LENGTH) {
         audio.currentTime = clipStart;
         setProgress(0);
         audio.startedOnce = true;
       }
-  
+
       audio.play();
-  
+
       intervalRef.current = setInterval(() => {
         if (!audioRef.current) return;
-        const currentProgress = (audioRef.current.currentTime - clipStart) / CLIP_LENGTH;
+        const currentProgress =
+          (audioRef.current.currentTime - clipStart) / CLIP_LENGTH;
         setProgress(currentProgress);
-  
+
         if (audioRef.current.currentTime >= clipStart + CLIP_LENGTH) {
           audioRef.current.pause();
           setIsPlaying(false);
@@ -226,10 +267,9 @@ export default function App() {
       audio.pause();
       clearInterval(intervalRef.current);
     }
-  
+
     setIsPlaying(!isPlaying);
   }
-  
 
   function submitGuess() {
     if (!guessText.trim() || !canGuess) return;

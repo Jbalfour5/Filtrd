@@ -34,15 +34,22 @@ export default function TinyWaveform({ analyser }) {
       for (let i = 0; i < bufferLength; i++) {
         const v = dataArray[i] / 255;
         const barHeight = v * height;
-        const x = i * barWidth;
 
-        const gradient = ctx.createLinearGradient(0, height - barHeight, 0, height);
+        const x = (bufferLength - 1 - i) * barWidth;
+
+        const gradient = ctx.createLinearGradient(
+          0,
+          height - barHeight,
+          0,
+          height
+        );
         gradient.addColorStop(0, "rgba(79,70,229,1)");
         gradient.addColorStop(1, "rgba(79,70,229,0.2)");
 
         ctx.fillStyle = gradient;
         ctx.fillRect(x, height - barHeight, barWidth - 1, barHeight);
       }
+      
     };
 
     draw();
