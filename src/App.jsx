@@ -465,7 +465,7 @@ export default function App() {
         clearInterval(intervalRef.current);
       } catch {}
     };
-  }, [songData, round]);  
+  }, [songData, round]);
 
   async function updateFilters() {
     if (!audioCtxRef.current || !sourceRef.current) return;
@@ -560,14 +560,12 @@ export default function App() {
     if (isCorrect) setRevealedAnswer(songData);
     else if (round < TOTAL_ROUNDS - 1) {
       setRound((r) => r + 1);
-      setClipStart(null);
     } else setRevealedAnswer(songData);
   }
 
   function skipRound() {
     if (round < TOTAL_ROUNDS - 1 && !revealedAnswer) {
       setRound((r) => r + 1);
-      setClipStart(null);
     }
     setIsPlaying(false);
     clearInterval(intervalRef.current);
