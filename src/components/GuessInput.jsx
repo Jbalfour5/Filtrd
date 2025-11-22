@@ -22,7 +22,7 @@ export default function GuessInput({
       (s) =>
         s.title.toLowerCase().includes(query) ||
         s.artist.toLowerCase().includes(query)
-    ).slice(0, 5);
+    );
   }, [guessText, showSuggestions, SONGS]);
 
   const handleKeyDown = (e) => {

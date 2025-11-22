@@ -408,11 +408,6 @@ const SONGS = [
     url: "/songs/45 - HOT TO GO!.mp3",
   },
   {
-    title: "Stressed Out",
-    artist: "Twenty One Pilots",
-    url: "/songs/045 - twenty one pilots:  Stressed Out [OFFICIAL VIDEO].mp3",
-  },
-  {
     title: "Die With A Smile",
     artist: "Lady Gaga & Bruno Mars",
     url: "/songs/46 - Die With A Smile.mp3",
@@ -675,11 +670,6 @@ const SONGS = [
     title: "NIGHTS LIKE THIS",
     artist: "The Kid LAROI",
     url: "/songs/The Kid LAROI - NIGHTS LIKE THIS (Lyrics).mp3",
-  },
-  {
-    title: "Stay",
-    artist: "The Kid LAROI & Justin Bieber",
-    url: "/songs/The Kid LAROI - Stay (Clean - Lyrics) feat. Justin Bieber.mp3",
   },
   {
     title: "The Thrill",
@@ -956,7 +946,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4">
+    <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4 mb-48">
       <div className="w-full max-w-3xl bg-white">
         <Header />
         <main className="space-y-6">
