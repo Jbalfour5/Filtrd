@@ -43,15 +43,17 @@ class LowCutFIR {
   }
 
   processSample(x) {
-    this.bufferIdx = (this.bufferIdx + 1) % this.M;
     this.buffer[this.bufferIdx] = x;
 
     let y = 0;
     let idx = this.bufferIdx;
     for (let k = 0; k < this.M; k++) {
       y += this.h[k] * this.buffer[idx];
-      idx = (idx - 1 + this.M) % this.M;
+      idx = (idx + 1) % this.M;
     }
+
+    this.bufferIdx = (this.bufferIdx + 1) % this.M;
+
     return y;
   }
 }

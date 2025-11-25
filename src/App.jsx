@@ -10,12 +10,15 @@ import { createLowCutNode } from "./filters/lowcutnode";
 const TOTAL_ROUNDS = 6;
 const FILTER_LEVELS = [5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
+  { name: "High Cut", description: "Removes high frequencies" },
+  { name: "Low Cut", description: "Removes low frequencies" },
   { name: "Reverb", description: "Adds echo effect" },
   { name: "Bit Crusher", description: "Reduces audio quality" },
   { name: "Distortion", description: "Adds gritty distortion" },
-  { name: "Low Cut", description: "Removes low frequencies" },
-  { name: "High Cut", description: "Removes high frequencies" },
-  { name: "Chorus", description: "Adds modulation" },
+  {
+    name: "Modulated Delay",
+    description: "Creates a shifting short delay",
+  },
 ];
 
 const SONGS = [
@@ -308,11 +311,6 @@ const SONGS = [
     url: "/songs/032 - Pitbull - Timber (Lyrics) ft. Ke$ha.mp3",
   },
   { title: "Flowers", artist: "Miley Cyrus", url: "/songs/33 - Flowers.mp3" },
-  {
-    title: "Watch Me (Whip/Nae Nae)",
-    artist: "Silentó",
-    url: "/songs/033 - Silentó - Watch Me (Whip/Nae Nae) (Official).mp3",
-  },
   {
     title: "Eyes Closed",
     artist: "Ed Sheeran",
