@@ -184,11 +184,6 @@ const SONGS = [
     url: "/songs/19 - Anti-Hero.mp3",
   },
   {
-    title: "Flashing Lights",
-    artist: "Kanye West",
-    url: "/songs/020 - Flashing Lights.mp3",
-  },
-  {
     title: "Unholy",
     artist: "Sam Smith ft. Kim Petras",
     url: "/songs/20 - Unholy.mp3",
@@ -362,7 +357,6 @@ const SONGS = [
     artist: "Future ft. Drake & Tems",
     url: "/songs/039 - Future - Wait For U (Clean - Lyrics) feat. Drake & Tems.mp3",
   },
-  { title: "Kill Bill", artist: "SZA", url: "/songs/39 - Kill Bill.mp3" },
   { title: "Don't", artist: "Ed Sheeran", url: "/songs/040 - Don't.mp3" },
   {
     title: "Espresso",
@@ -639,11 +633,6 @@ const SONGS = [
   },
   { title: "Passionfruit", artist: "Drake", url: "/songs/Passionfruit.mp3" },
   {
-    title: "Pink + White",
-    artist: "Frank Ocean",
-    url: "/songs/Pink+White.mp3",
-  },
-  {
     title: "Rock With You",
     artist: "Michael Jackson",
     url: "/songs/Rock_With_You.mp3",
@@ -653,7 +642,6 @@ const SONGS = [
     artist: "Tyler, The Creator ft. Kali Uchis",
     url: "/songs/See_You_Again.mp3",
   },
-  { title: "Snooze", artist: "SZA", url: "/songs/Snooze.mp3" },
   {
     title: "back to friends",
     artist: "sombr",
