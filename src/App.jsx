@@ -8,19 +8,23 @@ import { createHighCutNode } from "./filters/highcutnode";
 import { createLowCutNode } from "./filters/lowcutnode";
 import { createDistortionNode } from "./filters/distortionnode";
 import { createReverbNode } from "./filters/reverbnode";
+import { createPitchShifterNode } from "./filters/pitchshifter";
 
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
+  { name: "Distortion", description: "Adds gritty distortion" },
+  {
+    name: "Pitch Shift",
+    description: "Randomly shifts pitch up or down",
+  },
   {
     name: "High Cut",
     description: "Removes out high frequencies (muffled vocals)",
   },
   { name: "Low Cut", description: "Removes low frequencies (thinner bass)" },
-  { name: "Distortion", description: "Adds gritty distortion" },
   { name: "Modulated Delay", description: "Adds sweeping movement/wobbles" },
   { name: "Reverb", description: "Adds echo effect" },
-  { name: "Bit Crusher", description: "Reduces audio quality" },
 ];
 
 const CLIP_LENGTH = 10;
@@ -44,6 +48,9 @@ export default function App() {
   const sourceRef = useRef(null);
   const intervalRef = useRef(null);
   const filterNodesRef = useRef([]);
+  const pitchShiftSemitones = useRef(
+    Math.random() < 0.5 ? Math.random() * 5 : -Math.random() * 5
+  );
 
   const filtersApplied = FILTER_LEVELS[round];
   const maxFilters = FILTER_LEVELS[0];
@@ -76,18 +83,25 @@ export default function App() {
   async function createFilters(ctx, level) {
     const filters = [];
     if (level >= 1) {
-      const highCut = await createHighCutNode(ctx, 8000);
-      filters.push(highCut);
-    }
-    if (level >= 2) {
-      const lowCut = await createLowCutNode(ctx, 1000);
-      filters.push(lowCut);
-    }
-    if (level >= 3) {
       const distortion = await createDistortionNode(ctx, 4);
       filters.push(distortion);
     }
+    if (level >= 2) {
+      const pitchShifter = await createPitchShifterNode(
+        ctx,
+        pitchShiftSemitones.current
+      );
+      filters.push(pitchShifter);
+    }
+    if (level >= 3) {
+      const highCut = await createHighCutNode(ctx, 8000);
+      filters.push(highCut);
+    }
     if (level >= 4) {
+      const lowCut = await createLowCutNode(ctx, 1000);
+      filters.push(lowCut);
+    }
+    if (level >= 5) {
       const delay = ctx.createDelay();
       const lfo = ctx.createOscillator();
       const lfoGain = ctx.createGain();
@@ -97,14 +111,11 @@ export default function App() {
       lfoGain.gain.value = 0.02;
       lfo.connect(lfoGain).connect(delay.delayTime);
       lfo.start();
-
       filters.push(delay);
     }
-    if (level >= 5) {
+    if (level >= 6) {
       const reverb = await createReverbNode(ctx, 0.8, 0.9);
       filters.push(reverb);
-    }
-    if (level >= 6) {
     }
     return filters;
   }
