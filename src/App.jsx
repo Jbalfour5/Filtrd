@@ -7,7 +7,6 @@ import RevealedAnswer from "./components/RevealedAnswer";
 import { createHighCutNode } from "./filters/highcutnode";
 import { createLowCutNode } from "./filters/lowcutnode";
 import { createDistortionNode } from "./filters/distortionnode";
-import { createReverbNode } from "./filters/reverbnode";
 
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
@@ -42,15 +41,13 @@ export default function App() {
   const audioRef = useRef(null);
   const audioCtxRef = useRef(null);
   const sourceRef = useRef(null);
-  const intervalRef = useRef(null);
   const filterNodesRef = useRef([]);
+  const gainNodeRef = useRef(null);
+  const animationRef = useRef(null);
 
   const filtersApplied = FILTER_LEVELS[round];
-  const maxFilters = FILTER_LEVELS[0];
-  const waveformProgress = 1 - filtersApplied / maxFilters;
   const isLastRound = round === TOTAL_ROUNDS - 1;
   const canGuess = !revealedAnswer;
-
   const nextFilterName =
     round < TOTAL_ROUNDS - 1 ? ALL_FILTERS[FILTER_LEVELS[round + 1]]?.name : "";
 
@@ -62,9 +59,7 @@ export default function App() {
         setSONGS(data);
         if (data.length > 0)
           setSongData(data[Math.floor(Math.random() * data.length)]);
-      } catch (err) {
-        console.error("Failed to load songs.json", err);
-      }
+      } catch {}
     }
     loadSongs();
   }, []);
@@ -75,202 +70,142 @@ export default function App() {
 
   async function createFilters(ctx, level) {
     const filters = [];
-    if (level >= 1) {
-      const highCut = await createHighCutNode(ctx, 8000);
-      filters.push(highCut);
-    }
-    if (level >= 2) {
-      const lowCut = await createLowCutNode(ctx, 1000);
-      filters.push(lowCut);
-    }
-    if (level >= 3) {
-      const distortion = await createDistortionNode(ctx, 4);
-      filters.push(distortion);
-    }
+    if (level >= 1) filters.push(await createHighCutNode(ctx, 8000));
+    if (level >= 2) filters.push(await createLowCutNode(ctx, 1000));
+    if (level >= 3) filters.push(await createDistortionNode(ctx, 4));
     if (level >= 4) {
       const delay = ctx.createDelay();
       const lfo = ctx.createOscillator();
       const lfoGain = ctx.createGain();
-
       lfo.type = "sine";
       lfo.frequency.value = 0.4;
       lfoGain.gain.value = 0.02;
       lfo.connect(lfoGain).connect(delay.delayTime);
       lfo.start();
-
       filters.push(delay);
-    }
-    if (level >= 5) {
-      const reverb = await createReverbNode(ctx, 0.8, 0.9);
-      filters.push(reverb);
-    }
-    if (level >= 6) {
     }
     return filters;
   }
 
-  useEffect(() => {
-    if (!songData) {
-      const track = SONGS[Math.floor(Math.random() * SONGS.length)];
-      setSongData(track);
-      return;
-    }
+  async function normalizeTrack(audioCtx, audioEl) {
+    const response = await fetch(audioEl.src);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    let sum = 0;
+    const channelData = audioBuffer.getChannelData(0);
+    for (let i = 0; i < channelData.length; i++)
+      sum += channelData[i] * channelData[i];
+    const rms = Math.sqrt(sum / channelData.length);
+    const targetRMS = 0.1;
+    return targetRMS / (rms || 1);
+  }
 
+  useEffect(() => {
+    if (!songData) return;
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     audioCtxRef.current = audioCtx;
-
     const audioEl = new Audio(songData.url);
     audioEl.crossOrigin = "anonymous";
     audioRef.current = audioEl;
-
     const sourceNode = audioCtx.createMediaElementSource(audioEl);
     sourceRef.current = sourceNode;
-
     const analyserNode = audioCtx.createAnalyser();
     analyserNode.fftSize = 256;
     setAnalyser(analyserNode);
-
-    sourceNode.connect(analyserNode);
+    const gainNode = audioCtx.createGain();
+    gainNodeRef.current = gainNode;
+    sourceNode.connect(gainNode);
+    gainNode.connect(analyserNode);
     analyserNode.connect(audioCtx.destination);
-
-    audioEl.addEventListener("loadedmetadata", () => {
-      if (clipStart === null) {
-        const maxStart = Math.max(0, audioEl.duration - CLIP_LENGTH);
-        setClipStart(Math.random() * maxStart);
-      }
+    audioEl.addEventListener("loadedmetadata", async () => {
+      const gainFactor = await normalizeTrack(audioCtx, audioEl);
+      gainNode.gain.value = gainFactor;
+      const maxStart = Math.max(0, audioEl.duration - CLIP_LENGTH);
+      setClipStart(Math.random() * maxStart);
       setPlayerReady(true);
     });
-
     return () => {
       try {
         sourceNode.disconnect();
         analyserNode.disconnect();
+        gainNode.disconnect();
         audioEl.pause();
-        clearInterval(intervalRef.current);
+        cancelAnimationFrame(animationRef.current);
       } catch {}
     };
   }, [songData]);
 
   useEffect(() => {
-    if (!songData) {
-      const track = SONGS[Math.floor(Math.random() * SONGS.length)];
-      setSongData(track);
-      return;
-    }
-
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext ||
-        window.webkitAudioContext)();
-    }
-
-    const audioCtx = audioCtxRef.current;
-    const audioEl = new Audio(songData.url);
-    audioEl.crossOrigin = "anonymous";
-    audioRef.current = audioEl;
-
-    const sourceNode = audioCtx.createMediaElementSource(audioEl);
-    sourceRef.current = sourceNode;
-
-    const analyserNode = audioCtx.createAnalyser();
-    analyserNode.fftSize = 256;
-    setAnalyser(analyserNode);
-
     async function connectNodes() {
-      const filters = await createFilters(audioCtx, FILTER_LEVELS[round]);
+      if (!audioCtxRef.current || !sourceRef.current || !gainNodeRef.current)
+        return;
+
+      filterNodesRef.current.forEach((f) => f.disconnect());
+      const filters = await createFilters(audioCtxRef.current, filtersApplied);
       filterNodesRef.current = filters;
 
-      let nodeChain = sourceNode;
+      sourceRef.current.disconnect();
+      gainNodeRef.current.disconnect();
+
+      let nodeChain = sourceRef.current;
+
       filters.forEach((f) => {
-        nodeChain.connect(f);
-        nodeChain = f;
+        if (nodeChain && f) {
+          nodeChain.connect(f);
+          nodeChain = f;
+        }
       });
-      nodeChain.connect(analyserNode);
-      analyserNode.connect(audioCtx.destination);
+
+      if (nodeChain && gainNodeRef.current)
+        nodeChain.connect(gainNodeRef.current);
+      if (gainNodeRef.current && analyser) {
+        gainNodeRef.current.connect(analyser);
+        analyser.connect(audioCtxRef.current.destination);
+      }
     }
 
     connectNodes();
+  }, [round, songData, analyser]);
 
-    audioEl.addEventListener("loadedmetadata", () => {
-      if (clipStart === null) {
-        const maxStart = Math.max(0, audioEl.duration - CLIP_LENGTH);
-        setClipStart(Math.random() * maxStart);
-      }
-      setPlayerReady(true);
-    });
+  function updateProgress() {
+    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    const elapsed = audio.currentTime - clipStart;
+    const clamped = Math.max(0, Math.min(elapsed, CLIP_LENGTH));
+    setProgress(clamped / CLIP_LENGTH);
 
-    return () => {
-      try {
-        sourceNode.disconnect();
-        filterNodesRef.current.forEach((f) => f.disconnect());
-        analyserNode.disconnect();
-        audioEl.pause();
-        clearInterval(intervalRef.current);
-      } catch {}
-    };
-  }, [songData, round]);
-
-  async function updateFilters() {
-    if (!audioCtxRef.current || !sourceRef.current) return;
-
-    if (audioRef.current && !audioRef.current.paused) {
-      audioRef.current.pause();
+    if (elapsed < CLIP_LENGTH && !audio.paused) {
+      animationRef.current = requestAnimationFrame(updateProgress);
+    } else {
+      audio.pause();
       setIsPlaying(false);
+      setProgress(1);
     }
-
-    filterNodesRef.current.forEach((f) => f.disconnect());
-    filterNodesRef.current = [];
-
-    const filters = await createFilters(audioCtxRef.current, filtersApplied);
-    filterNodesRef.current = filters;
-
-    let nodeChain = sourceRef.current;
-    filters.forEach((f) => {
-      nodeChain.connect(f);
-      nodeChain = f;
-    });
-
-    if (analyser) nodeChain.connect(analyser);
-    analyser?.connect(audioCtxRef.current.destination);
   }
-
-  useEffect(() => {
-    updateFilters();
-  }, [round]);
 
   function togglePlay() {
     if (!audioRef.current || !audioCtxRef.current || clipStart === null) return;
-
     const audio = audioRef.current;
-
     audioCtxRef.current.resume();
 
     if (!isPlaying) {
-      if (!audio.startedOnce || audio.currentTime >= clipStart + CLIP_LENGTH) {
+      if (
+        !audio.startedOnce ||
+        audio.currentTime < clipStart ||
+        audio.currentTime >= clipStart + CLIP_LENGTH
+      ) {
         audio.currentTime = clipStart;
         setProgress(0);
         audio.startedOnce = true;
       }
-
       audio.play();
-
-      intervalRef.current = setInterval(() => {
-        if (!audioRef.current) return;
-        const currentProgress =
-          (audioRef.current.currentTime - clipStart) / CLIP_LENGTH;
-        setProgress(currentProgress);
-
-        if (audioRef.current.currentTime >= clipStart + CLIP_LENGTH) {
-          audioRef.current.pause();
-          setIsPlaying(false);
-          clearInterval(intervalRef.current);
-        }
-      }, 50);
+      setIsPlaying(true);
+      animationRef.current = requestAnimationFrame(updateProgress);
     } else {
       audio.pause();
-      clearInterval(intervalRef.current);
+      cancelAnimationFrame(animationRef.current);
+      setIsPlaying(false);
     }
-
-    setIsPlaying(!isPlaying);
   }
 
   function submitGuess() {
@@ -279,12 +214,12 @@ export default function App() {
     const isCorrect =
       songData &&
       [songData.title.toLowerCase().replace(/\s+/g, "")].some((t) =>
-        t.toLowerCase().includes(guess.toLowerCase())
+        t.includes(guess)
       );
     const isPartialCorrect =
       songData &&
       [songData.artist.toLowerCase().replace(/\s+/g, "")].some((t) =>
-        t.toLowerCase().includes(guess.toLowerCase())
+        t.includes(guess)
       );
     setGuesses((g) => [
       {
@@ -300,17 +235,19 @@ export default function App() {
     ]);
     setGuessText("");
     if (isCorrect) setRevealedAnswer(songData);
-    else if (round < TOTAL_ROUNDS - 1) {
-      setRound((r) => r + 1);
-    } else setRevealedAnswer(songData);
+    else if (round < TOTAL_ROUNDS - 1) setRound((r) => r + 1);
+    else setRevealedAnswer(songData);
   }
 
   function skipRound() {
-    if (round < TOTAL_ROUNDS - 1 && !revealedAnswer) {
-      setRound((r) => r + 1);
+    if (round < TOTAL_ROUNDS - 1 && !revealedAnswer) setRound((r) => r + 1);
+    if (audioRef.current) {
+      audioRef.current.currentTime = clipStart || 0;
+      audioRef.current.pause();
     }
+    cancelAnimationFrame(animationRef.current);
     setIsPlaying(false);
-    clearInterval(intervalRef.current);
+    setProgress(0);
   }
 
   return (
