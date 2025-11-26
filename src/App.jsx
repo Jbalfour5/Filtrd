@@ -84,6 +84,17 @@ export default function App() {
       filters.push(lowCut);
     }
     if (level >= 4) {
+      const delay = ctx.createDelay();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+
+      lfo.type = "sine";
+      lfo.frequency.value = 0.4;
+      lfoGain.gain.value = 0.02;
+      lfo.connect(lfoGain).connect(delay.delayTime);
+      lfo.start();
+
+      filters.push(delay);
     }
     if (level >= 5) {
     }
