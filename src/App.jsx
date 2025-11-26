@@ -7,8 +7,8 @@ import RevealedAnswer from "./components/RevealedAnswer";
 import { createHighCutNode } from "./filters/highcutnode";
 import { createLowCutNode } from "./filters/lowcutnode";
 
-const TOTAL_ROUNDS = 6;
-const FILTER_LEVELS = [5, 4, 3, 2, 1, 0];
+const TOTAL_ROUNDS = 7;
+const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
   { name: "High Cut", description: "Removes high frequencies" },
   { name: "Low Cut", description: "Removes low frequencies" },
