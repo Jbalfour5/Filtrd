@@ -11,12 +11,12 @@ import { createDistortionNode } from "./filters/distortionnode";
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
+  { name: "High Cut", description: "Removes out high frequencies (muffled vocals)" },
+  { name: "Low Cut", description: "Removes low frequencies (thinner bass)" },
+  { name: "Distortion", description: "Adds gritty distortion" },
+  { name: "Modulated Delay", description: "Adds sweeping movement/wobbles" },
   { name: "Reverb", description: "Adds echo effect" },
   { name: "Bit Crusher", description: "Reduces audio quality" },
-  { name: "Distortion", description: "Adds gritty distortion" },
-  { name: "Low Cut", description: "Removes low frequencies" },
-  { name: "High Cut", description: "Removes high frequencies" },
-  { name: "Chorus", description: "Adds modulation" },
 ];
 
 const CLIP_LENGTH = 10;
@@ -72,16 +72,16 @@ export default function App() {
   async function createFilters(ctx, level) {
     const filters = [];
     if (level >= 1) {
-      const distortion = await createDistortionNode(ctx, 5);
-      filters.push(distortion);
-    }
-    if (level >= 2) {
-      const highCut = await createHighCutNode(ctx, 10000);
+      const highCut = await createHighCutNode(ctx, 8000);
       filters.push(highCut);
     }
-    if (level >= 3) {
-      const lowCut = await createLowCutNode(ctx, 2000);
+    if (level >= 2) {
+      const lowCut = await createLowCutNode(ctx, 1000);
       filters.push(lowCut);
+    }
+    if (level >= 3) {
+      const distortion = await createDistortionNode(ctx, 4);
+      filters.push(distortion);
     }
     if (level >= 4) {
       const delay = ctx.createDelay();
