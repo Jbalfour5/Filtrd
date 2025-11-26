@@ -6,19 +6,17 @@ import GuessHistory from "./components/GuessHistory";
 import RevealedAnswer from "./components/RevealedAnswer";
 import { createHighCutNode } from "./filters/highcutnode";
 import { createLowCutNode } from "./filters/lowcutnode";
+import { createDistortionNode } from "./filters/distortionnode";
 
 const TOTAL_ROUNDS = 6;
 const FILTER_LEVELS = [5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
-  { name: "High Cut", description: "Removes high frequencies" },
-  { name: "Low Cut", description: "Removes low frequencies" },
   { name: "Reverb", description: "Adds echo effect" },
   { name: "Bit Crusher", description: "Reduces audio quality" },
   { name: "Distortion", description: "Adds gritty distortion" },
-  {
-    name: "Modulated Delay",
-    description: "Creates a shifting short delay",
-  },
+  { name: "Low Cut", description: "Removes low frequencies" },
+  { name: "High Cut", description: "Removes high frequencies" },
+  { name: "Chorus", description: "Adds modulation" },
 ];
 
 const SONGS = [
@@ -42,6 +40,7 @@ const SONGS = [
     artist: "Demi Lovato",
     url: "/songs/02 - Demi Lovato - Heart Attack (Official Video).mp3",
   },
+  { title: "God's Plan", artist: "Drake", url: "/songs/002 - God's Plan.mp3" },
   { title: "Physical", artist: "Dua Lipa", url: "/songs/02 - Physical.mp3" },
   {
     title: "All The Stars",
@@ -125,9 +124,19 @@ const SONGS = [
     url: "/songs/11 - Heartbreak Anthem.mp3",
   },
   {
+    title: "What Do You Mean?",
+    artist: "Justin Bieber",
+    url: "/songs/011 - What Do You Mean? .mp3",
+  },
+  {
     title: "BED",
     artist: "Joel Corry, RAYE & David Guetta",
     url: "/songs/12 - BED.mp3",
+  },
+  {
+    title: "Sorry",
+    artist: "Justin Bieber",
+    url: "/songs/012 - Justin Bieber - Sorry (PURPOSE :  The Movement).mp3",
   },
   {
     title: "STAY",
@@ -182,6 +191,11 @@ const SONGS = [
     title: "Anti-Hero",
     artist: "Taylor Swift",
     url: "/songs/19 - Anti-Hero.mp3",
+  },
+  {
+    title: "Flashing Lights",
+    artist: "Kanye West",
+    url: "/songs/020 - Flashing Lights.mp3",
   },
   {
     title: "Unholy",
@@ -295,382 +309,9 @@ const SONGS = [
     url: "/songs/031 - Miley Cyrus - Party In The U.S.A. (Official Video).mp3",
   },
   {
-    title: "REACT",
-    artist: "Switch Disco ft. Ella Henderson",
-    url: "/songs/31 - REACT.mp3",
-  },
-  { title: "greedy", artist: "Tate McRae", url: "/songs/32 - greedy.mp3" },
-  {
-    title: "Timber",
-    artist: "Pitbull ft. Ke$ha",
-    url: "/songs/032 - Pitbull - Timber (Lyrics) ft. Ke$ha.mp3",
-  },
-  { title: "Flowers", artist: "Miley Cyrus", url: "/songs/33 - Flowers.mp3" },
-  {
-    title: "Eyes Closed",
-    artist: "Ed Sheeran",
-    url: "/songs/34 - Eyes Closed.mp3",
-  },
-  {
-    title: "In My Feelings",
-    artist: "Drake",
-    url: "/songs/034 - In My Feelings.mp3",
-  },
-  {
-    title: "Cruel Summer",
-    artist: "Taylor Swift",
-    url: "/songs/35 - Cruel Summer.mp3",
-  },
-  {
-    title: "Life is Good",
-    artist: "Future ft. Drake",
-    url: "/songs/035 - Future, Drake - Life is Good (Clean - Lyrics).mp3",
-  },
-  { title: "Houdini", artist: "Dua Lipa", url: "/songs/36 - Houdini.mp3" },
-  {
-    title: "INDUSTRY BABY",
-    artist: "Lil Nas X ft. Jack Harlow",
-    url: "/songs/036 - Lil Nas X - INDUSTRY BABY (Clean - Lyrics) feat. Jack Harlow.mp3",
-  },
-  {
-    title: "Stick Season",
-    artist: "Noah Kahan",
-    url: "/songs/37 - Stick Season.mp3",
-  },
-  {
-    title: "FE!N",
-    artist: "Travis Scott ft. Playboi Carti",
-    url: "/songs/037 - Travis Scott - FE!N (Clean - Lyrics) feat. Playboi Carti.mp3",
-  },
-  {
-    title: "EARFQUAKE",
-    artist: "Tyler, The Creator",
-    url: "/songs/038 - EARFQUAKE.mp3",
-  },
-  {
-    title: "Pointless",
-    artist: "Lewis Capaldi",
-    url: "/songs/38 - Pointless.mp3",
-  },
-  {
-    title: "Wait For U",
-    artist: "Future ft. Drake & Tems",
-    url: "/songs/039 - Future - Wait For U (Clean - Lyrics) feat. Drake & Tems.mp3",
-  },
-  { title: "Don't", artist: "Ed Sheeran", url: "/songs/040 - Don't.mp3" },
-  {
-    title: "Espresso",
-    artist: "Sabrina Carpenter",
-    url: "/songs/41 - Espresso.mp3",
-  },
-  {
-    title: "The Hills",
-    artist: "The Weeknd",
-    url: "/songs/041 - The Weeknd - The Hills.mp3",
-  },
-  {
-    title: "Lose Control",
-    artist: "Teddy Swims",
-    url: "/songs/42 - Lose Control.mp3",
-  },
-  {
-    title: "Starboy",
-    artist: "The Weeknd ft. Daft Punk",
-    url: "/songs/042 - Starboy.mp3",
-  },
-  { title: "APT.", artist: "ROSÉ & Bruno Mars", url: "/songs/43 - APT..mp3" },
-  {
-    title: "Dancing With A Stranger",
-    artist: "Sam Smith & Normani",
-    url: "/songs/043 - Sam Smith, Normani - Dancing With A Stranger (Official Music Video).mp3",
-  },
-  {
-    title: "Beautiful Things",
-    artist: "Benson Boone",
-    url: "/songs/44 - Beautiful Things.mp3",
-  },
-  {
-    title: "Levitating",
-    artist: "Dua Lipa ft. DaBaby",
-    url: "/songs/044 - Dua Lipa - Levitating Featuring DaBaby (Official Music Video).mp3",
-  },
-  {
-    title: "HOT TO GO!",
-    artist: "Chappell Roan",
-    url: "/songs/45 - HOT TO GO!.mp3",
-  },
-  {
-    title: "Die With A Smile",
-    artist: "Lady Gaga & Bruno Mars",
-    url: "/songs/46 - Die With A Smile.mp3",
-  },
-  {
-    title: "Cooler Than Me",
-    artist: "Mike Posner",
-    url: "/songs/046 - Mike Posner - Cooler Than Me (Lyrics).mp3",
-  },
-  {
-    title: "Beauty And A Beat",
-    artist: "Justin Bieber ft. Nicki Minaj",
-    url: "/songs/047 - Beauty And A Beat.mp3",
-  },
-  {
-    title: "Sunroof",
-    artist: "Nicky Youre & dazy",
-    url: "/songs/048 - Nicky Youre, dazy - Sunroof (Lyrics).mp3",
-  },
-  {
-    title: "Stargazing",
-    artist: "Myles Smith",
-    url: "/songs/48 - Stargazing.mp3",
-  },
-  {
-    title: "Let Me Love You",
-    artist: "DJ Snake ft. Justin Bieber",
-    url: "/songs/049 - DJ Snake - Let Me Love You ft. Justin Bieber.mp3",
-  },
-  {
-    title: "i like the way you kiss me",
-    artist: "Artemas",
-    url: "/songs/49 - i like the way you kiss me.mp3",
-  },
-  {
-    title: "Havana",
-    artist: "Camila Cabello ft. Young Thug",
-    url: "/songs/050 - Camila Cabello - Havana (Lyrics) ft. Young Thug.mp3",
-  },
-  {
-    title: "Strangers",
-    artist: "Kenya Grace",
-    url: "/songs/51 - Strangers.mp3",
-  },
-  {
-    title: "No Scrubs",
-    artist: "TLC",
-    url: "/songs/051 - TLC - No Scrubs (Lyrics).mp3",
-  },
-  { title: "Foolish", artist: "Ashanti", url: "/songs/052 - Foolish.mp3" },
-  {
-    title: "Guess",
-    artist: "Charli xcx ft. Billie Eilish",
-    url: "/songs/52 - Guess feat. billie eilish.mp3",
-  },
-  {
-    title: "Austin (Boots Stop Workin')",
-    artist: "Dasha",
-    url: "/songs/53 - Austin (Boots Stop Workin').mp3",
-  },
-  {
-    title: "Return of the Mack",
-    artist: "Mark Morrison",
-    url: "/songs/053 - Mark Morrison - Return of the Mack (Official Music Video).mp3",
-  },
-  {
-    title: "Finesse (Remix)",
-    artist: "Bruno Mars ft. Cardi B",
-    url: "/songs/054 - Bruno Mars - Finesse (Remix) (feat. Cardi B) (Official Music Video).mp3",
-  },
-  {
-    title: "People Watching",
-    artist: "Conan Gray",
-    url: "/songs/54 - People Watching.mp3",
-  },
-  {
-    title: "Wild Thoughts",
-    artist: "DJ Khaled ft. Rihanna & Bryson Tiller",
-    url: "/songs/055 - DJ Khaled - Wild Thoughts (Official Video) ft. Rihanna, Bryson Tiller.mp3",
-  },
-  {
-    title: "Training Season",
-    artist: "Dua Lipa",
-    url: "/songs/55 - Training Season.mp3",
-  },
-  {
-    title: "Lovin On Me",
-    artist: "Jack Harlow",
-    url: "/songs/056 - Jack Harlow - Lovin On Me [Official Music Video].mp3",
-  },
-  { title: "LUNCH", artist: "Billie Eilish", url: "/songs/56 - LUNCH.mp3" },
-  { title: "Houdini", artist: "Eminem", url: "/songs/57 - Houdini.mp3" },
-  {
-    title: "All Falls Down",
-    artist: "Kanye West ft. Syleena Johnson",
-    url: "/songs/All Falls Down (Clean) - Kanye West (feat. Syleena Johnson).mp3",
-  },
-  { title: "Bad Habit", artist: "Steve Lacy", url: "/songs/Bad_Habit.mp3" },
-  {
-    title: "Beat It",
-    artist: "Michael Jackson",
-    url: "/songs/Beat It - Michael Jackson (Lyrics).mp3",
-  },
-  { title: "beside you", artist: "Keshi", url: "/songs/beside_you.mp3" },
-  {
-    title: "Best Part",
-    artist: "Daniel Caesar ft. H.E.R.",
-    url: "/songs/Best_Part.mp3",
-  },
-  {
-    title: "Bound 2",
-    artist: "Kanye West",
-    url: "/songs/Bound 2 (Clean) - Kanye West (feat. Charlie Wilson & Brenda Lee).mp3",
-  },
-  {
-    title: "ALL MINE",
-    artist: "Brent Faiyaz",
-    url: "/songs/Brent Faiyaz - ALL MINE (Clean) (Lyrics) - Full Audio, 4k Video.mp3",
-  },
-  {
-    title: "Clouded",
-    artist: "Brent Faiyaz",
-    url: "/songs/Brent Faiyaz - Clouded CLEAN.mp3",
-  },
-  {
-    title: "Grenade",
-    artist: "Bruno Mars",
-    url: "/songs/Bruno Mars - Grenade (Clean Version).mp3",
-  },
-  {
-    title: "Talking To The Moon",
-    artist: "Bruno Mars",
-    url: "/songs/Bruno Mars - Talking To The Moon (Official Lyric Video).mp3",
-  },
-  {
-    title: "Treasure",
-    artist: "Bruno Mars",
-    url: "/songs/Bruno Mars - Treasure (Official Music Video).mp3",
-  },
-  {
-    title: "Chamber Of Reflection",
-    artist: "Mac DeMarco",
-    url: "/songs/Chamber_Of_Reflection.mp3",
-  },
-  {
-    title: "Best I Ever Had",
-    artist: "Drake",
-    url: "/songs/Drake - Best I Ever Had (Clean Version).mp3",
-  },
-  {
-    title: "God's Plan",
-    artist: "Drake",
-    url: "/songs/Drake - God's Plan (Clean - Lyrics).mp3",
-  },
-  {
-    title: "Hotline Bling",
-    artist: "Drake",
-    url: "/songs/Drake - Hotline Bling (Super Clean).mp3",
-  },
-  {
-    title: "Earfquake",
-    artist: "Tyler, The Creator",
-    url: "/songs/Earfquake.mp3",
-  },
-  {
-    title: "Flashing Lights",
-    artist: "Kanye West",
-    url: "/songs/Flashing_Lights.mp3",
-  },
-  {
-    title: "Chanel",
-    artist: "Frank Ocean",
-    url: "/songs/Frank Ocean - Chanel (Clean Version).mp3",
-  },
-  {
-    title: "Thinkin Bout You",
-    artist: "Frank Ocean",
-    url: "/songs/Frank Ocean Thinkin Bout You Clean.mp3",
-  },
-  {
-    title: "Gravity",
-    artist: "Brent Faiyaz & DJ Dahi ft. Tyler, The Creator",
-    url: "/songs/Gravity.mp3",
-  },
-  {
-    title: "Homecoming",
-    artist: "Kanye West ft. Chris Martin",
-    url: "/songs/Homecoming (Clean) - Kanye West (feat. Chris Martin).mp3",
-  },
-  { title: "I Wonder", artist: "Kanye West", url: "/songs/I_Wonder.mp3" },
-  {
-    title: "Is There Someone Else?",
-    artist: "The Weeknd",
-    url: "/songs/Is_There_Someone_Else.mp3",
-  },
-  { title: "Ivy", artist: "Frank Ocean", url: "/songs/Ivy.mp3" },
-  {
-    title: "Empire State Of Mind",
-    artist: "JAY-Z & Alicia Keys",
-    url: "/songs/JAY-Z, Alicia Keys - Empire State Of Mind (Clean) | Lyrics.mp3",
-  },
-  {
-    title: "Lost",
-    artist: "Frank Ocean",
-    url: "/songs/Lost (Clean) - Frank Ocean.mp3",
-  },
-  {
-    title: "Payphone",
-    artist: "Maroon 5 ft. Wiz Khalifa",
-    url: "/songs/Maroon 5 - Payphone (Lyrics_Clean Version, No Rap).mp3",
-  },
-  {
-    title: "Billie Jean",
-    artist: "Michael Jackson",
-    url: "/songs/Michael Jackson - Billie Jean (Lyrics).mp3",
-  },
-  {
-    title: "Money Trees",
-    artist: "Kendrick Lamar ft. Jay Rock",
-    url: "/songs/Money_Trees.mp3",
-  },
-  {
-    title: "Am I Wrong",
-    artist: "Nico & Vinz",
-    url: "/songs/Nico & Vinz - Am I Wrong [Official Music Video].mp3",
-  },
-  {
-    title: "No Role Modelz",
-    artist: "J. Cole",
-    url: "/songs/No_Role_Modelz.mp3",
-  },
-  { title: "Passionfruit", artist: "Drake", url: "/songs/Passionfruit.mp3" },
-  {
-    title: "Rock With You",
-    artist: "Michael Jackson",
-    url: "/songs/Rock_With_You.mp3",
-  },
-  {
-    title: "See You Again",
-    artist: "Tyler, The Creator ft. Kali Uchis",
-    url: "/songs/See_You_Again.mp3",
-  },
-  {
-    title: "back to friends",
-    artist: "sombr",
-    url: "/songs/sombr - back to friends (official audio).mp3",
-  },
-  {
-    title: "Kill Bill",
-    artist: "SZA",
-    url: "/songs/SZA - Kill Bill (Clean).mp3",
-  },
-  {
-    title: "NIGHTS LIKE THIS",
-    artist: "The Kid LAROI",
-    url: "/songs/The Kid LAROI - NIGHTS LIKE THIS (Lyrics).mp3",
-  },
-  {
-    title: "The Thrill",
-    artist: "Wiz Khalifa ft. Empire of the Sun",
-    url: "/songs/The_Thrill.mp3",
-  },
-  {
-    title: "Too Good",
-    artist: "Drake ft. Rihanna",
-    url: "/songs/Too Good (Clean) - Drake (feat. Rihanna).mp3",
-  },
-  {
     title: "Stressed Out",
     artist: "Twenty One Pilots",
-    url: "/songs/twenty one pilotsStressed Out.mp3",
+    url: "/songs/twenty one pilots:  Stressed Out [OFFICIAL VIDEO].mp3",
   },
 ];
 
@@ -723,6 +364,8 @@ export default function App() {
     if (level >= 4) {
     }
     if (level >= 5) {
+      const distortion= await createDistortionNode(ctx, 5);
+      filters.push(distortion);
     }
     return filters;
   }
@@ -932,7 +575,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4 mb-48">
+    <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4">
       <div className="w-full max-w-3xl bg-white">
         <Header />
         <main className="space-y-6">
