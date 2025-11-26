@@ -7,16 +7,17 @@ import RevealedAnswer from "./components/RevealedAnswer";
 import { createHighCutNode } from "./filters/highcutnode";
 import { createLowCutNode } from "./filters/lowcutnode";
 import { createDistortionNode } from "./filters/distortionnode";
+import { createReverbNode } from "./filters/reverbnode";
 
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
-  { name: "Reverb", description: "Adds echo effect" },
-  { name: "Bit Crusher", description: "Reduces audio quality" },
   { name: "Distortion", description: "Adds gritty distortion" },
-  { name: "Low Cut", description: "Removes low frequencies" },
   { name: "High Cut", description: "Removes high frequencies" },
+  { name: "Low Cut", description: "Removes low frequencies" },
+  { name: "Bit Crusher", description: "Reduces audio quality" },
   { name: "Chorus", description: "Adds modulation" },
+  { name: "Reverb", description: "Adds echo effect" },
 ];
 
 const CLIP_LENGTH = 10;
@@ -97,6 +98,8 @@ export default function App() {
       filters.push(delay);
     }
     if (level >= 5) {
+      const reverb = await createReverbNode(ctx, 0.8, 0.9);
+      filters.push(reverb);
     }
     return filters;
   }
