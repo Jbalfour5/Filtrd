@@ -8,8 +8,8 @@ import { createHighCutNode } from "./filters/highcutnode";
 import { createLowCutNode } from "./filters/lowcutnode";
 import { createDistortionNode } from "./filters/distortionnode";
 
-const TOTAL_ROUNDS = 6;
-const FILTER_LEVELS = [5, 4, 3, 2, 1, 0];
+const TOTAL_ROUNDS = 7;
+const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
   { name: "Reverb", description: "Adds echo effect" },
   { name: "Bit Crusher", description: "Reduces audio quality" },

@@ -1,7 +1,7 @@
 import React from "react";
 import IconFilter from "./icons/IconFilter";
 
-const FILTER_LEVELS = [5, 4, 3, 2, 1, 0];
+const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 
 export default function ActiveFilters({ filters, currentRound }) {
   const filtersToShow = filters.slice(0, FILTER_LEVELS[currentRound]);
