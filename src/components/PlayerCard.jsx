@@ -35,7 +35,7 @@ export default function PlayerCard({
             <button
               onClick={togglePlay}
               disabled={!playerReady}
-              className={`p-2 rounded-md  bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm ${
+              className={`p-2 rounded-md cursor-pointer bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm ${
                 !playerReady ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -49,7 +49,7 @@ export default function PlayerCard({
             <button
               onClick={() => setIsLooping((prev) => !prev)}
               disabled={!playerReady}
-              className={`p-2 rounded-md border transition-colors shadow-sm ${
+              className={`cursor-pointer p-2 rounded-md border transition-colors shadow-sm ${
                 isLooping
                   ? "bg-blue-600 border-blue-700 hover:bg-blue-700"
                   : "bg-white border-gray-300 hover:bg-gray-100"

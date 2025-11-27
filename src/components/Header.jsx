@@ -9,7 +9,7 @@ export default function Header() {
       </div>
 
       <button
-        className="text-sm px-3 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+        className="text-sm px-3 py-2 cursor-pointer rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
         onClick={() => window.location.reload()}
       >
         New
