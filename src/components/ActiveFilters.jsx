@@ -1,5 +1,5 @@
 import React from "react";
-import IconFilter from "./icons/IconFilter";
+import { FunnelIcon } from "@heroicons/react/24/outline";
 
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 
@@ -9,8 +9,8 @@ export default function ActiveFilters({ filters, currentRound }) {
 
   return (
     <div className="mt-4 space-y-3">
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-        <IconFilter />
+      <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
+        <FunnelIcon className="w-6 h-6 text-gray-800" strokeWidth={1.1} />
         <span>Active Filters ({filtersToShow.length})</span>
       </div>
 
