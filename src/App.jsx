@@ -295,23 +295,30 @@ export default function App() {
   const submitGuess = () => {
     if (!guessText.trim() || revealedAnswer) return;
 
-    const normalizeText = (text) => text.toLowerCase();
+    const normalizeText = (text) => text.toLowerCase().trim();
 
     const cleanedGuess = guessText.trim();
     const cleanedSongTitle = songData.title.trim();
     const cleanedSongArtist = songData.artist.trim();
 
+    const artistParts = cleanedSongArtist
+      .split(/ ft\. | feat\. | featuring | & /i)
+      .map((a) => a.trim())
+      .filter(Boolean);
+
     const isTitleCorrect =
       normalizeText(cleanedGuess) === normalizeText(cleanedSongTitle);
 
+    let correctArtist = null;
     const isPartialCorrect =
       !isTitleCorrect &&
-      (normalizeText(cleanedGuess) === normalizeText(cleanedSongArtist) ||
-        SONGS.some(
-          (s) =>
-            normalizeText(s.artist) === normalizeText(cleanedSongArtist) &&
-            normalizeText(s.title) === normalizeText(cleanedGuess)
-        ));
+      artistParts.some((artist) => {
+        if (normalizeText(cleanedGuess) === normalizeText(artist)) {
+          correctArtist = artist;
+          return true;
+        }
+        return false;
+      });
 
     const newGuess = {
       text: guessText,
@@ -321,6 +328,7 @@ export default function App() {
       partialCorrect: isPartialCorrect,
       songTitle: songData.title,
       songArtist: songData.artist,
+      correctArtist: correctArtist,
     };
 
     setGuesses((prev) => [newGuess, ...prev]);
@@ -329,7 +337,7 @@ export default function App() {
     if (isLastRound || isTitleCorrect) {
       setRevealedAnswer({
         title: songData.title,
-        artist: songData.artist,
+        artist: correctArtist || songData.artist,
         round,
       });
       removeAllFilters();
@@ -339,7 +347,7 @@ export default function App() {
       skipRound();
     }
   };
-
+  
   function skipRound() {
     if (round < TOTAL_ROUNDS - 1 && !revealedAnswer) {
       setRound((r) => r + 1);
