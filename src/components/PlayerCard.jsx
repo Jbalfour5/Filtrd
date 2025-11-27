@@ -21,7 +21,7 @@ export default function PlayerCard({
   isLooping,
   setIsLooping
 }) {
-  const remaining = Math.max(0, Math.ceil((1 - progress) * 10));
+  const remaining = Math.max(0, Math.ceil((1 - progress) * 5));
 
   return (
     <div className="rounded-xl border border-gray-300 p-4 bg-gray-50">
