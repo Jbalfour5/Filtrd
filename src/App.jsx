@@ -13,17 +13,17 @@ import { createPitchShifterNode } from "./filters/pitchshifter";
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
+  {
+    name: "High Cut",
+    description: "Removes out high frequencies (muffled vocals)",
+  },
+  { name: "Low Cut", description: "Removes low frequencies (thinner bass)" },
   { name: "Modulated Delay", description: "Adds sweeping movement/wobbles" },
   {
     name: "Pitch Shift",
     description: "Randomly shifts pitch up or down",
   },
   { name: "Distortion", description: "Adds gritty distortion" },
-  {
-    name: "High Cut",
-    description: "Removes out high frequencies (muffled vocals)",
-  },
-  { name: "Low Cut", description: "Removes low frequencies (thinner bass)" },
   { name: "Reverb", description: "Adds echo effect" },
 ];
 
@@ -43,7 +43,6 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [clipStart, setClipStart] = useState(null);
   const [isLooping, setIsLooping] = useState(false);
-
 
   const audioRef = useRef(null);
   const audioCtxRef = useRef(null);
@@ -285,7 +284,6 @@ export default function App() {
           }
         }
       }, 50);
-      
     } else {
       audio.pause();
       clearInterval(intervalRef.current);
@@ -355,7 +353,6 @@ export default function App() {
     setIsPlaying(false);
     clearInterval(intervalRef.current);
   }
-  
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4">
