@@ -10,7 +10,7 @@ export default function ActiveFilters({ filters, currentRound }) {
   return (
     <div className="mt-4 space-y-3">
       <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
-        <FunnelIcon className="w-6 h-6 text-gray-800" strokeWidth={1.1} />
+        <FunnelIcon className="w-5 h-5 text-gray-800" strokeWidth={1.1} />
         <span>Active Filters ({filtersToShow.length})</span>
       </div>
 
