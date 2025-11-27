@@ -129,48 +129,6 @@ export default function App() {
       return;
     }
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    audioCtxRef.current = audioCtx;
-
-    const audioEl = new Audio(songData.url);
-    audioEl.crossOrigin = "anonymous";
-    audioRef.current = audioEl;
-
-    const sourceNode = audioCtx.createMediaElementSource(audioEl);
-    sourceRef.current = sourceNode;
-
-    const analyserNode = audioCtx.createAnalyser();
-    analyserNode.fftSize = 256;
-    setAnalyser(analyserNode);
-
-    sourceNode.connect(analyserNode);
-    analyserNode.connect(audioCtx.destination);
-
-    audioEl.addEventListener("loadedmetadata", () => {
-      if (clipStart === null) {
-        const maxStart = Math.max(0, audioEl.duration - CLIP_LENGTH);
-        setClipStart(Math.random() * maxStart);
-      }
-      setPlayerReady(true);
-    });
-
-    return () => {
-      try {
-        sourceNode.disconnect();
-        analyserNode.disconnect();
-        audioEl.pause();
-        clearInterval(intervalRef.current);
-      } catch {}
-    };
-  }, [songData]);
-
-  useEffect(() => {
-    if (!songData) {
-      const track = SONGS[Math.floor(Math.random() * SONGS.length)];
-      setSongData(track);
-      return;
-    }
-
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext ||
         window.webkitAudioContext)();
@@ -347,7 +305,7 @@ export default function App() {
       skipRound();
     }
   };
-  
+
   function skipRound() {
     if (round < TOTAL_ROUNDS - 1 && !revealedAnswer) {
       setRound((r) => r + 1);
