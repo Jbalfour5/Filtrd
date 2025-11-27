@@ -13,21 +13,21 @@ import { createPitchShifterNode } from "./filters/pitchshifter";
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
 const ALL_FILTERS = [
-  { name: "Distortion", description: "Adds gritty distortion" },
+  { name: "Modulated Delay", description: "Adds sweeping movement/wobbles" },
   {
     name: "Pitch Shift",
     description: "Randomly shifts pitch up or down",
   },
+  { name: "Distortion", description: "Adds gritty distortion" },
   {
     name: "High Cut",
     description: "Removes out high frequencies (muffled vocals)",
   },
   { name: "Low Cut", description: "Removes low frequencies (thinner bass)" },
-  { name: "Modulated Delay", description: "Adds sweeping movement/wobbles" },
   { name: "Reverb", description: "Adds echo effect" },
 ];
 
-const CLIP_LENGTH = 10;
+const CLIP_LENGTH = 5;
 
 export default function App() {
   const [SONGS, setSONGS] = useState([]);
@@ -42,6 +42,8 @@ export default function App() {
   const [analyser, setAnalyser] = useState(null);
   const [progress, setProgress] = useState(0);
   const [clipStart, setClipStart] = useState(null);
+  const [isLooping, setIsLooping] = useState(false);
+
 
   const audioRef = useRef(null);
   const audioCtxRef = useRef(null);
@@ -83,35 +85,36 @@ export default function App() {
   async function createFilters(ctx, level) {
     const filters = [];
     if (level >= 1) {
-      const distortion = await createDistortionNode(ctx, 4);
-      filters.push(distortion);
+      const highCut = await createHighCutNode(ctx, 3000);
+      filters.push(highCut);
     }
     if (level >= 2) {
+      const lowCut = await createLowCutNode(ctx, 1000);
+      filters.push(lowCut);
+    }
+    if (level >= 3) {
+      const delay = ctx.createDelay();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+
+      lfo.type = "sine";
+      lfo.frequency.value = 0.8;
+      lfoGain.gain.value = 0.03;
+
+      lfo.connect(lfoGain).connect(delay.delayTime);
+      lfo.start();
+      filters.push(delay);
+    }
+    if (level >= 4) {
       const pitchShifter = await createPitchShifterNode(
         ctx,
         pitchShiftSemitones.current
       );
       filters.push(pitchShifter);
     }
-    if (level >= 3) {
-      const highCut = await createHighCutNode(ctx, 8000);
-      filters.push(highCut);
-    }
-    if (level >= 4) {
-      const lowCut = await createLowCutNode(ctx, 1000);
-      filters.push(lowCut);
-    }
     if (level >= 5) {
-      const delay = ctx.createDelay();
-      const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-
-      lfo.type = "sine";
-      lfo.frequency.value = 0.4;
-      lfoGain.gain.value = 0.02;
-      lfo.connect(lfoGain).connect(delay.delayTime);
-      lfo.start();
-      filters.push(delay);
+      const distortion = await createDistortionNode(ctx, 4);
+      filters.push(distortion);
     }
     if (level >= 6) {
       const reverb = await createReverbNode(ctx, 0.8, 0.9);
@@ -266,16 +269,23 @@ export default function App() {
 
       intervalRef.current = setInterval(() => {
         if (!audioRef.current) return;
+
         const currentProgress =
           (audioRef.current.currentTime - clipStart) / CLIP_LENGTH;
+
         setProgress(currentProgress);
 
         if (audioRef.current.currentTime >= clipStart + CLIP_LENGTH) {
-          audioRef.current.pause();
-          setIsPlaying(false);
-          clearInterval(intervalRef.current);
+          if (isLooping) {
+            audioRef.current.currentTime = clipStart;
+          } else {
+            audioRef.current.pause();
+            setIsPlaying(false);
+            clearInterval(intervalRef.current);
+          }
         }
       }, 50);
+      
     } else {
       audio.pause();
       clearInterval(intervalRef.current);
@@ -339,7 +349,10 @@ export default function App() {
             playerReady={playerReady}
             analyser={analyser}
             progress={progress}
+            isLooping={isLooping}
+            setIsLooping={setIsLooping}
           />
+
           {!revealedAnswer && (
             <GuessInput
               guessText={guessText}

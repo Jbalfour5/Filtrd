@@ -1,8 +1,12 @@
 import React from "react";
-import IconPlay from "./icons/IconPlay";
-import IconPause from "./icons/IconPause";
 import TinyWaveform from "./TinyWaveform";
 import ActiveFilters from "./ActiveFilters";
+import {
+  PlayIcon,
+  PauseIcon,
+  ArrowPathRoundedSquareIcon,
+} from "@heroicons/react/24/solid";
+
 
 export default function PlayerCard({
   round,
@@ -14,6 +18,8 @@ export default function PlayerCard({
   playerReady,
   analyser,
   progress,
+  isLooping,
+  setIsLooping
 }) {
   const remaining = Math.max(0, Math.ceil((1 - progress) * 10));
 
@@ -33,7 +39,27 @@ export default function PlayerCard({
                 !playerReady ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {isPlaying ? <IconPause /> : <IconPlay />}
+              {isPlaying ? (
+                <PauseIcon className="h-5 w-5 text-gray-700" />
+              ) : (
+                <PlayIcon className="h-5 w-5 text-gray-700" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setIsLooping((prev) => !prev)}
+              disabled={!playerReady}
+              className={`p-2 rounded-md border transition-colors shadow-sm ${
+                isLooping
+                  ? "bg-blue-600 border-blue-700 hover:bg-blue-700"
+                  : "bg-white border-gray-300 hover:bg-gray-100"
+              } ${!playerReady ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <ArrowPathRoundedSquareIcon
+                className={`h-5 w-5 ${
+                  isLooping ? "text-white" : "text-gray-700"
+                }`}
+              />
             </button>
 
             <div className="text-sm text-gray-700">
