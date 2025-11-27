@@ -28,12 +28,13 @@ class DistortionProcessor extends AudioWorkletProcessor {
     const output = outputs[0];
     if (!input || !output) return true;
 
-    const inputL = input[0];
-    const inputR = input[1] || input[0];
+    const inputL = input[0] ?? new Float32Array(output[0].length);
+    const inputR = input[1] ?? inputL;
     const outputL = output[0];
-    const outputR = output[1] || output[0];
+    const outputR = output[1] ?? outputL;
 
-    for (let i = 0; i < inputL.length; i++) {
+    const len = Math.min(inputL.length, outputL.length);
+    for (let i = 0; i < len; i++) {
       outputL[i] = this.dist.processSample(inputL[i]);
       outputR[i] = this.dist.processSample(inputR[i]);
     }
