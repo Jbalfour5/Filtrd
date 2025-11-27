@@ -332,6 +332,8 @@ export default function App() {
         artist: songData.artist,
         round,
       });
+      removeAllFilters();
+      setRound(6);
       setIsPlaying(false);
     } else {
       skipRound();
@@ -344,6 +346,32 @@ export default function App() {
     }
     setIsPlaying(false);
     clearInterval(intervalRef.current);
+  }
+
+  function removeAllFilters() {
+    if (!sourceRef.current || !audioCtxRef.current) return;
+
+    try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = clipStart || 0;
+      }
+
+      filterNodesRef.current.forEach((f) => {
+        try {
+          f.disconnect();
+        } catch {}
+      });
+      filterNodesRef.current = [];
+
+      if (analyser) {
+        sourceRef.current.disconnect();
+        sourceRef.current.connect(analyser);
+        analyser.connect(audioCtxRef.current.destination);
+      }
+    } catch (err) {
+      console.error("Error clearing filters:", err);
+    }
   }
 
   return (
