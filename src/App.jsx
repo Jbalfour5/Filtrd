@@ -294,38 +294,53 @@ export default function App() {
     setIsPlaying(!isPlaying);
   }
 
-  function submitGuess() {
-    if (!guessText.trim() || !canGuess) return;
-    const guess = guessText.toLowerCase().replace(/\s+/g, "");
-    const isCorrect =
-      songData &&
-      [songData.title.toLowerCase().replace(/\s+/g, "")].some((t) =>
-        t.toLowerCase().includes(guess.toLowerCase())
-      );
-    const isPartialCorrect =
-      songData &&
-      [songData.artist.toLowerCase().replace(/\s+/g, "")].some((t) =>
-        t.toLowerCase().includes(guess.toLowerCase())
-      );
-    setGuesses((g) => [
-      {
-        songTitle: songData.title,
-        songArtist: songData.artist,
-        text: guessText,
-        round: round + 1,
-        filters: filtersApplied,
-        correct: isCorrect,
-        partialCorrect: isPartialCorrect,
-      },
-      ...g,
-    ]);
-    setGuessText("");
-    if (isCorrect) setRevealedAnswer(songData);
-    else if (round < TOTAL_ROUNDS - 1) {
-      setRound((r) => r + 1);
-    } else setRevealedAnswer(songData);
-  }
+  const submitGuess = () => {
+    if (!guessText.trim() || revealedAnswer) return;
 
+    const normalizeText = (text) => text.toLowerCase();
+
+    const cleanedGuess = guessText.trim();
+    const cleanedSongTitle = songData.title.trim();
+    const cleanedSongArtist = songData.artist.trim();
+
+    const isTitleCorrect =
+      normalizeText(cleanedGuess) === normalizeText(cleanedSongTitle);
+
+    const isPartialCorrect =
+      !isTitleCorrect &&
+      (normalizeText(cleanedGuess) === normalizeText(cleanedSongArtist) ||
+        SONGS.some(
+          (s) =>
+            normalizeText(s.artist) === normalizeText(cleanedSongArtist) &&
+            normalizeText(s.title) === normalizeText(cleanedGuess)
+        ));
+
+    const newGuess = {
+      text: guessText,
+      round,
+      filters: activeFilters.length,
+      correct: isTitleCorrect,
+      partialCorrect: isPartialCorrect,
+      songTitle: songData.title,
+      songArtist: songData.artist,
+    };
+
+    setGuesses((prev) => [newGuess, ...prev]);
+    setGuessText("");
+
+    if (isLastRound || isTitleCorrect) {
+      setRevealedAnswer({
+        title: songData.title,
+        artist: songData.artist,
+        round,
+      });
+      setIsPlaying(false);
+    } else {
+      skipRound();
+    }
+  };
+  
+  
   function skipRound() {
     if (round < TOTAL_ROUNDS - 1 && !revealedAnswer) {
       setRound((r) => r + 1);
@@ -333,6 +348,7 @@ export default function App() {
     setIsPlaying(false);
     clearInterval(intervalRef.current);
   }
+  
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4">

@@ -1,5 +1,18 @@
 import React from "react";
 
+function cleanAndFormatArtistName(name) {
+  if (!name) return "";
+
+  const cleaned = name.split(/ft\.|feat\.|featuring|&/i)[0].trim();
+
+  const words = cleaned.replace(/\s+/g, " ").split(" ");
+  const capitalized = words.map(
+    (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+  );
+
+  return capitalized.join(" ");
+}
+
 export default function GuessHistory({ guesses }) {
   return (
     <div>
@@ -15,14 +28,11 @@ export default function GuessHistory({ guesses }) {
           >
             <div>
               <div className="font-medium text-gray-900">
-                {g.correct ? (
-                  g.songTitle
-                ) : g.partialCorrect ? (
-                  g.songArtist
-                ) : (
-                  g.text
-                )}
-
+                {g.correct
+                  ? g.songTitle
+                  : g.partialCorrect
+                  ? cleanAndFormatArtistName(g.songArtist)
+                  : cleanAndFormatArtistName(g.text)}
               </div>
               <div className="text-xs text-gray-500">
                 Round {g.round} — filters applied: {g.filters}
