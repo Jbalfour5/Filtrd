@@ -4,16 +4,21 @@ class ReverbFIR {
     this.delaySamples = Math.floor(delayTime * sampleRate);
     this.feedback = feedback;
 
-    this.buffer = new Float32Array(this.delaySamples).fill(0);
+    this.bufferL = new Float32Array(this.delaySamples).fill(0);
+    this.bufferR = new Float32Array(this.delaySamples).fill(0);
     this.bufferIdx = 0;
   }
 
-  processSample(x) {
-    const delayed = this.buffer[this.bufferIdx];
+  processSample(x, channel = "L") {
+    const buffer = channel === "L" ? this.bufferL : this.bufferR;
+    const delayed = buffer[this.bufferIdx];
     const y = x + delayed * this.feedback;
-    this.buffer[this.bufferIdx] = y;
-    this.bufferIdx = (this.bufferIdx + 1) % this.delaySamples;
+    buffer[this.bufferIdx] = y;
     return y;
+  }
+
+  incrementIndex() {
+    this.bufferIdx = (this.bufferIdx + 1) % this.delaySamples;
   }
 }
 
@@ -24,13 +29,19 @@ class ReverbProcessor extends AudioWorkletProcessor {
   }
 
   process(inputs, outputs) {
-    const input = inputs[0]?.[0];
-    const output = outputs[0]?.[0];
-
+    const input = inputs[0];
+    const output = outputs[0];
     if (!input || !output) return true;
 
-    for (let i = 0; i < input.length; i++) {
-      output[i] = this.reverb.processSample(input[i]);
+    const inputL = input[0];
+    const inputR = input[1] || input[0];
+    const outputL = output[0];
+    const outputR = output[1] || output[0];
+
+    for (let i = 0; i < inputL.length; i++) {
+      outputL[i] = this.reverb.processSample(inputL[i], "L");
+      outputR[i] = this.reverb.processSample(inputR[i], "R");
+      this.reverb.incrementIndex();
     }
 
     return true;
