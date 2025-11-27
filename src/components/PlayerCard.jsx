@@ -35,7 +35,7 @@ export default function PlayerCard({
             <button
               onClick={togglePlay}
               disabled={!playerReady}
-              className={`p-2 rounded-md cursor-pointer bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm ${
+              className={`p-2 rounded-md duration-300 cursor-pointer bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm ${
                 !playerReady ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -49,10 +49,10 @@ export default function PlayerCard({
             <button
               onClick={() => setIsLooping((prev) => !prev)}
               disabled={!playerReady}
-              className={`cursor-pointer p-2 rounded-md border transition-colors shadow-sm ${
+              className={`cursor-pointer p-2 rounded-md border-gray-300 border transition-colors shadow-sm ${
                 isLooping
-                  ? "bg-blue-600 border-blue-700 hover:bg-blue-700"
-                  : "bg-white border-gray-300 hover:bg-gray-100"
+                  ? "bg-gradient-to-br from-indigo-400 to-indigo-600 hover:to-indigo-800"
+                  : "bg-white hover:bg-gray-100"
               } ${!playerReady ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <ArrowPathRoundedSquareIcon
