@@ -3,9 +3,7 @@ import React from "react";
 function cleanAndFormatArtistName(name) {
   if (!name) return "";
 
-  const cleaned = name.split(/ft\.|feat\.|featuring|&/i)[0].trim();
-
-  const words = cleaned.replace(/\s+/g, " ").split(" ");
+  const words = name.replace(/\s+/g, " ").split(" ");
   const capitalized = words.map(
     (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
   );
@@ -31,7 +29,7 @@ export default function GuessHistory({ guesses }) {
                 {g.correct
                   ? g.songTitle
                   : g.partialCorrect
-                  ? cleanAndFormatArtistName(g.songArtist)
+                  ? cleanAndFormatArtistName(g.correctArtist) // use correctArtist
                   : cleanAndFormatArtistName(g.text)}
               </div>
               <div className="text-xs text-gray-500">
