@@ -104,6 +104,10 @@ Filtrd requires **no backend server** and runs fully in-browser.
 FILTRD/
 ├── public/
 │   ├── songs/
+|   |   ├─ song1.mp3
+|   |   ├─ song2.mp3
+|   |   ├─ ...
+|   |
 │   ├── worklets/
 │   │   ├── distortion-processor.js
 │   │   ├── highcut-processor.js
