@@ -1,6 +1,6 @@
 <p align="center">
   <a href="#">
-    <img src="src/assets/Filtrd.png" width="200" alt="Filtrd Logo">
+    <img src="src/assets/FiltrdReadMe.png" width="200" alt="Filtrd Logo">
   </a>
 </p>
 
