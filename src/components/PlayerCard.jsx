@@ -63,7 +63,7 @@ export default function PlayerCard({
             </button>
 
             <div className="text-sm text-gray-700">
-              <div className="font-semibold">Filtered Clip</div>
+              <div className="font-semibold">Filtered Snippet</div>
               <div className="text-xs text-gray-500">
                 {filtersApplied === 0
                   ? "No filters"

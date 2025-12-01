@@ -21,7 +21,7 @@ const ALL_FILTERS = [
   { name: "Modulated Delay", description: "Adds sweeping movement/wobbles" },
   {
     name: "Pitch Shift",
-    description: "Randomly shifts pitch up or down",
+    description: "Randomly shifts pitch down by a random value",
   },
   { name: "Distortion", description: "Adds gritty distortion" },
   { name: "Reverb", description: "Adds echo effect" },

@@ -13,7 +13,7 @@ export default function Header() {
 
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            FILTRD - Daily Filtered Clip
+            Filtrd - Daily Filtered Song
           </h1>
           <p className="text-sm text-gray-600">
             Guess the song as filters are removed.
@@ -21,7 +21,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Right side button */}
       <button
         className="text-sm px-3 py-2 cursor-pointer rounded-md bg-gradient-to-br from-indigo-400 to-indigo-600 hover:to-indigo-800 text-white transition-colors"
         onClick={() => window.location.reload()}
