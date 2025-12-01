@@ -2,7 +2,7 @@
 Filtrd
 </h1>
 
-<h2 align="center">A Filter-Reveal Music Guessing Game</h2>
+<h2 align="center">An Audio Filter Guessing Game</h2>
 
 <div align="center">
 
