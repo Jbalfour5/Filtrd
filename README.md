@@ -115,11 +115,16 @@ FILTRD/
 │   └── vite.svg
 │
 ├── src/
+│   ├── assets/
+│   │   ├── Filtrd.png
+│   │   └── FiltrdReadMe.png
+│   │
 │   ├── components/
 │   │   ├── icons/
 │   │   │   ├── IconFilter.jsx
 │   │   │   ├── IconPause.jsx
 │   │   │   └── IconPlay.jsx
+│   │   │
 │   │   ├── ActiveFilters.jsx
 │   │   ├── GuessHistory.jsx
 │   │   ├── GuessInput.jsx
