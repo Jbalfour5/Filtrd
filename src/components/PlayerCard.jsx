@@ -25,12 +25,12 @@ export default function PlayerCard({
 
   return (
     <div className="rounded-xl border border-gray-300 p-4 bg-gray-50">
-      <div className="flex items-center gap-4">
-        <div className="w-20 h-20 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
+      <div className="flex gap-4">
+        <div className="mt-38 w-20 h-20 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
           {round + 1}
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col">
           <div className="flex items-center gap-3 mb-5">
             <button
               onClick={togglePlay}
@@ -82,7 +82,7 @@ export default function PlayerCard({
               style={{ width: `${Math.min(progress * 100, 100)}%` }}
             ></div>
             <div className="absolute inset-0 flex items-center justify-center text-white font-bold">
-              {remaining}s
+              {Math.max(0, Math.ceil((1 - progress) * 5))}s
             </div>
           </div>
 
