@@ -271,21 +271,28 @@ export default function App() {
       audio.play();
       setIsPlaying(true);
 
-      const stopAt = clipStart + CLIP_LENGTH;
-      const stopInterval = setInterval(() => {
-        if (audio.currentTime >= stopAt) {
-          audio.pause();
-          audio.currentTime = clipStart;
-          setIsPlaying(false);
-          clearInterval(stopInterval);
+      intervalRef.current = setInterval(() => {
+        setProgress((audio.currentTime - clipStart) / CLIP_LENGTH);
+
+        if (audio.currentTime >= clipStart + CLIP_LENGTH) {
+          if (isLooping) {
+            audio.currentTime = clipStart;
+            audio.play();
+            setProgress(0);
+          } else {
+            audio.pause();
+            audio.currentTime = clipStart;
+            setIsPlaying(false);
+            clearInterval(intervalRef.current);
+          }
         }
       }, 50);
     } else {
       audio.pause();
       setIsPlaying(false);
+      clearInterval(intervalRef.current);
     }
   }
-  
   
 
   const submitGuess = () => {
