@@ -331,7 +331,7 @@ export default function App() {
     const newGuess = {
       text: guessText,
       round,
-      filters: activeFilters.length,
+      filters: FILTER_LEVELS[round],
       correct: isTitleCorrect,
       partialCorrect: isPartialCorrect,
       songTitle: songData.title,
