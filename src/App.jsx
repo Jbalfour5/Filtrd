@@ -49,7 +49,7 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [clipStart, setClipStart] = useState(null);
   const [isLooping, setIsLooping] = useState(false);
-
+  const [nextSongCountdown, setNextSongCountdown] = useState("");
   const audioRef = useRef(null);
   const audioCtxRef = useRef(null);
   const sourceRef = useRef(null);
@@ -139,6 +139,33 @@ export default function App() {
     }
     return filters;
   }
+
+  useEffect(() => {
+    function updateCountdown() {
+      const now = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(now.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const diffMs = tomorrow - now;
+
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+      const HH = String(hours).padStart(2, "0");
+      const MM = String(minutes).padStart(2, "0");
+      const SS = String(seconds).padStart(2, "0");
+
+      setNextSongCountdown(`${HH}:${MM}:${SS}`);
+    }
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+  
 
   useEffect(() => {
     if (!songData) {
@@ -366,7 +393,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4">
       <div className="w-full max-w-3xl bg-white">
-        <Header />
+        <Header 
+        nextSongCountdown={nextSongCountdown}
+        />
         <main className="space-y-6">
           <PlayerCard
             round={round}
