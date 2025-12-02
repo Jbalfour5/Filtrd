@@ -19,7 +19,7 @@ export default function Header({ nextSongCountdown }) {
             Guess the song as filters are removed.
           </p>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500">
             Next song in:{" "}
             <span className="font-semibold">{nextSongCountdown}</span>
           </p>

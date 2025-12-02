@@ -7,7 +7,6 @@ import {
   ArrowPathRoundedSquareIcon,
 } from "@heroicons/react/24/solid";
 
-
 export default function PlayerCard({
   round,
   isPlaying,
@@ -19,7 +18,7 @@ export default function PlayerCard({
   analyser,
   progress,
   isLooping,
-  setIsLooping
+  setIsLooping,
 }) {
   const remaining = Math.max(0, Math.ceil((1 - progress) * 5));
 
