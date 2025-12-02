@@ -20,13 +20,6 @@ export default function Header() {
           </p>
         </div>
       </div>
-
-      <button
-        className="text-sm px-3 py-2 cursor-pointer rounded-md bg-gradient-to-br from-indigo-400 to-indigo-600 hover:to-indigo-800 text-white transition-colors"
-        onClick={() => window.location.reload()}
-      >
-        New
-      </button>
     </header>
   );
 }

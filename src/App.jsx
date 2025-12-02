@@ -23,8 +23,14 @@ const ALL_FILTERS = [
     name: "Pitch Shift",
     description: "Randomly shifts pitch down by a random value",
   },
-  { name: "Distortion", description: "Adds gritty distortion" },
-  { name: "Reverb", description: "Adds echo effect" },
+  {
+    name: "Distortion",
+    description: "Adds heavy saturation for a rough, gritty sound",
+  },
+  {
+    name: "Reverb",
+    description: "Adds spacious echo for a wide, ambient feel",
+  },
 ];
 
 const CLIP_LENGTH = 5;
@@ -49,9 +55,16 @@ export default function App() {
   const sourceRef = useRef(null);
   const intervalRef = useRef(null);
   const filterNodesRef = useRef([]);
-  const pitchShiftSemitones = useRef(
-    Math.random() < 0.5 ? Math.random() * 5 : -Math.random() * 5
-  );
+  const pitchShiftSemitones = useRef();
+  const today = new Date();
+  const daySeed = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+
+  function seededRandom(seed) {
+    return (Math.sin(seed * 9999) + 1) / 2;
+  }
+
+  const randomValue = seededRandom(daySeed);
+  pitchShiftSemitones.current = -(randomValue * 5);
 
   const filtersApplied = FILTER_LEVELS[round];
   const maxFilters = FILTER_LEVELS[0];
@@ -68,8 +81,13 @@ export default function App() {
         const response = await fetch("/songs.json");
         const data = await response.json();
         setSONGS(data);
-        if (data.length > 0)
-          setSongData(data[Math.floor(Math.random() * data.length)]);
+
+        if (data.length > 0) {
+          const today = new Date();
+          const daySeed = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+          const index = daySeed % data.length;
+          setSongData(data[index]);
+        }
       } catch (err) {
         console.error("Failed to load songs.json", err);
       }
@@ -124,8 +142,6 @@ export default function App() {
 
   useEffect(() => {
     if (!songData) {
-      const track = SONGS[Math.floor(Math.random() * SONGS.length)];
-      setSongData(track);
       return;
     }
 
@@ -164,7 +180,14 @@ export default function App() {
     audioEl.addEventListener("loadedmetadata", () => {
       if (clipStart === null) {
         const maxStart = Math.max(0, audioEl.duration - CLIP_LENGTH);
-        setClipStart(Math.random() * maxStart);
+
+        const today = new Date();
+        const daySeed = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+
+        const seeded = (Math.sin(daySeed) + 1) / 2;
+
+        const start = seeded * maxStart;
+        setClipStart(start);
       }
       setPlayerReady(true);
     });
