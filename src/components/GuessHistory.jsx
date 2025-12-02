@@ -13,8 +13,8 @@ function cleanAndFormatArtistName(name) {
 
 export default function GuessHistory({ guesses }) {
   return (
-    <div>
-      <h3 className="text-sm font-medium mb-2 text-gray-700">Guesses</h3>
+    <div className="pb-10">
+      <h3 className="text-sm font-medium text-gray-700">Guesses</h3>
       <div className="space-y-2">
         {guesses.length === 0 && (
           <div className="text-xs text-gray-500">No guesses yet.</div>
