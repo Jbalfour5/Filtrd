@@ -262,43 +262,31 @@ export default function App() {
     if (!audioRef.current || !audioCtxRef.current || clipStart === null) return;
 
     const audio = audioRef.current;
-
     audioCtxRef.current.resume();
 
     if (!isPlaying) {
-      if (!audio.startedOnce || audio.currentTime >= clipStart + CLIP_LENGTH) {
-        audio.currentTime = clipStart;
-        setProgress(0);
-        audio.startedOnce = true;
-      }
+      audio.currentTime = clipStart;
+      setProgress(0);
 
       audio.play();
+      setIsPlaying(true);
 
-      intervalRef.current = setInterval(() => {
-        if (!audioRef.current) return;
-
-        const currentProgress =
-          (audioRef.current.currentTime - clipStart) / CLIP_LENGTH;
-
-        setProgress(currentProgress);
-
-        if (audioRef.current.currentTime >= clipStart + CLIP_LENGTH) {
-          if (isLooping) {
-            audioRef.current.currentTime = clipStart;
-          } else {
-            audioRef.current.pause();
-            setIsPlaying(false);
-            clearInterval(intervalRef.current);
-          }
+      const stopAt = clipStart + CLIP_LENGTH;
+      const stopInterval = setInterval(() => {
+        if (audio.currentTime >= stopAt) {
+          audio.pause();
+          audio.currentTime = clipStart;
+          setIsPlaying(false);
+          clearInterval(stopInterval);
         }
       }, 50);
     } else {
       audio.pause();
-      clearInterval(intervalRef.current);
+      setIsPlaying(false);
     }
-
-    setIsPlaying(!isPlaying);
   }
+  
+  
 
   const submitGuess = () => {
     if (!guessText.trim() || revealedAnswer) return;
