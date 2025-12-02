@@ -33,7 +33,7 @@ export default function GuessHistory({ guesses }) {
                   : cleanAndFormatArtistName(g.text)}
               </div>
               <div className="text-xs text-gray-500">
-                Round {g.round} — filters applied: {g.filters}
+                Round {g.round} — Filters Applied: {g.filters}
               </div>
             </div>
             <div className="text-sm">
