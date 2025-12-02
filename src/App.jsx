@@ -272,6 +272,8 @@ export default function App() {
       setIsPlaying(true);
 
       intervalRef.current = setInterval(() => {
+        if (clipStart === null) return;
+
         setProgress((audio.currentTime - clipStart) / CLIP_LENGTH);
 
         if (audio.currentTime >= clipStart + CLIP_LENGTH) {
@@ -294,7 +296,6 @@ export default function App() {
     }
   }
   
-
   const submitGuess = () => {
     if (!guessText.trim() || revealedAnswer) return;
 
