@@ -8,7 +8,7 @@ import { createHighCutNode } from "./filters/highcutnode";
 import { createLowCutNode } from "./filters/lowcutnode";
 import { createDistortionNode } from "./filters/distortionnode";
 import { createReverbNode } from "./filters/reverbnode";
-import { createPitchShifterNode } from "./filters/pitchshifter";
+import { createPitchShifterNode } from "./filters/pitchshifternode";
 
 const TOTAL_ROUNDS = 7;
 const FILTER_LEVELS = [6, 5, 4, 3, 2, 1, 0];
@@ -92,7 +92,6 @@ export default function App() {
       })
     );
   }
-  
 
   const randomValue = seededRandom(daySeed);
   pitchShiftSemitones.current = -(randomValue * 5);
@@ -117,7 +116,7 @@ export default function App() {
           const today = new Date();
           const daySeed = getPSTDaySeed();
           const index = daySeed % data.length;
-          setSongData(data[index]);                
+          setSongData(data[index]);
         }
       } catch (err) {
         console.error("Failed to load songs.json", err);
@@ -188,7 +187,7 @@ export default function App() {
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, []);  
+  }, []);
 
   useEffect(() => {
     if (!songData) {
@@ -233,7 +232,7 @@ export default function App() {
 
         const daySeed = getPSTDaySeed();
         const seeded = (Math.sin(daySeed) + 1) / 2;
-    
+
         const start = seeded * maxStart;
         setClipStart(start);
       }
@@ -316,7 +315,7 @@ export default function App() {
       clearInterval(intervalRef.current);
     }
   }
-  
+
   const submitGuess = () => {
     if (!guessText.trim() || revealedAnswer) return;
 
@@ -410,9 +409,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-gray-900 flex items-start justify-center py-12 px-4">
       <div className="w-full max-w-3xl bg-white">
-        <Header 
-        nextSongCountdown={nextSongCountdown}
-        />
+        <Header nextSongCountdown={nextSongCountdown} />
         <main className="space-y-6">
           <PlayerCard
             round={round}
