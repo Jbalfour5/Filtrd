@@ -57,11 +57,42 @@ export default function App() {
   const filterNodesRef = useRef([]);
   const pitchShiftSemitones = useRef();
   const today = new Date();
-  const daySeed = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+  function getPSTDaySeed() {
+    const now = new Date();
+
+    const pst = new Date(
+      now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" })
+    );
+
+    const year = pst.getFullYear();
+    const month = pst.getMonth() + 1;
+    const day = pst.getDate();
+
+    return year * 10000 + month * 100 + day;
+  }
+
+  const daySeed = getPSTDaySeed();
 
   function seededRandom(seed) {
     return (Math.sin(seed * 9999) + 1) / 2;
   }
+
+  function getNextPSTMidnight() {
+    const now = new Date();
+
+    const pst = new Date(
+      now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" })
+    );
+
+    pst.setHours(24, 0, 0, 0);
+
+    return new Date(
+      pst.toLocaleString("en-US", {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+    );
+  }
+  
 
   const randomValue = seededRandom(daySeed);
   pitchShiftSemitones.current = -(randomValue * 5);
@@ -84,9 +115,9 @@ export default function App() {
 
         if (data.length > 0) {
           const today = new Date();
-          const daySeed = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+          const daySeed = getPSTDaySeed();
           const index = daySeed % data.length;
-          setSongData(data[index]);
+          setSongData(data[index]);                
         }
       } catch (err) {
         console.error("Failed to load songs.json", err);
@@ -141,31 +172,23 @@ export default function App() {
   }
 
   useEffect(() => {
-    function updateCountdown() {
+    const updateCountdown = () => {
+      const nextMidnight = getNextPSTMidnight();
       const now = new Date();
-      const tomorrow = new Date();
-      tomorrow.setDate(now.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
+      const diff = nextMidnight - now;
 
-      const diffMs = tomorrow - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-
-      const HH = String(hours).padStart(2, "0");
-      const MM = String(minutes).padStart(2, "0");
-      const SS = String(seconds).padStart(2, "0");
-
-      setNextSongCountdown(`${HH}:${MM}:${SS}`);
-    }
+      setNextSongCountdown(`${hours}h ${minutes}m ${seconds}s`);
+    };
 
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, []);
-  
+  }, []);  
 
   useEffect(() => {
     if (!songData) {
@@ -208,11 +231,9 @@ export default function App() {
       if (clipStart === null) {
         const maxStart = Math.max(0, audioEl.duration - CLIP_LENGTH);
 
-        const today = new Date();
-        const daySeed = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
-
+        const daySeed = getPSTDaySeed();
         const seeded = (Math.sin(daySeed) + 1) / 2;
-
+    
         const start = seeded * maxStart;
         setClipStart(start);
       }
