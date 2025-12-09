@@ -9,7 +9,7 @@ export default function RevealedAnswer({ revealedAnswer, guesses }) {
       <div className="text-lg">{revealedAnswer.title} — {revealedAnswer.artist}</div>
       <div className="text-xs mt-2 text-green-600">
         {guesses.some(g => g.correct) 
-          ? `You guessed it in round ${guesses.find(g => g.correct).round}!` 
+          ? `You guessed it in round ${guesses.find(g => g.correct).round + 1}!` 
           : 'Better luck next time!'}
       </div>
     </div>
